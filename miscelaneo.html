@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadenas de Markov - Participación de Mercado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfbfa;
+            --text-main: #2b2a28;
+            --text-muted: #646360;
+            --card-bg: #ffffff;
+            --sidebar-bg: #f3f1ec;
+            --sidebar-hover: #e8e5de;
+            --accent-line: #dfdbd3;
+            --accent-dot: #4e5c50;
+            --error-color: #a84343;
+            --transition-speed: 0.3s;
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid-inputs {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-dot);
+            border-radius: 50%;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text-muted);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            transition: border-color var(--transition-speed);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-dot);
+        }
+
+        .matrix-row-container {
+            margin-bottom: 1rem;
+        }
+
+        .matrix-row-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        button.btn-primary {
+            background-color: var(--accent-dot);
+            color: #ffffff;
+            border: none;
+        }
+
+        button.btn-primary:hover {
+            background-color: #3d4a3e;
+        }
+
+        button.btn-secondary {
+            background-color: var(--sidebar-bg);
+            color: var(--text-main);
+            border: 1px solid var(--accent-line);
+        }
+
+        button.btn-secondary:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .error-box {
+            background-color: #fff5f5;
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 2.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            background-color: var(--card-bg);
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--accent-line);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--sidebar-bg);
+            font-weight: 500;
+        }
+
+        .development-box {
+            background-color: var(--sidebar-bg);
+            border-left: 3px solid var(--accent-dot);
+            padding: 1.5rem;
+            border-radius: 0 4px 4px 0;
+            font-family: var(--font-sans);
+        }
+
+        .dev-step {
+            margin-bottom: 1.5rem;
+        }
+
+        .dev-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .dev-step h4 {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .dev-line {
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+            font-mono: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Cadenas de Markov</h1>
+            <p class="subtitle">Análisis de participación de mercado para los periodos 0, 1 y 2</p>
+        </header>
+
+        <div id="errorBox" class="error-box"></div>
+
+        <div class="grid-inputs">
+            <section class="card">
+                <h2 class="card-title">Vector Inicial (π⁰)</h2>
+                <div class="form-group">
+                    <div class="input-row">
+                        <div>
+                            <label for="vM">M (%)</label>
+                            <input type="number" id="vM" step="any">
+                        </div>
+                        <div>
+                            <label for="vG">G (%)</label>
+                            <input type="number" id="vG" step="any">
+                        </div>
+                        <div>
+                            <label for="vL">L (%)</label>
+                            <input type="number" id="vL" step="any">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">Matriz de Transición (P)</h2>
+                
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde M hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p00" step="any">
+                        <input type="number" id="p01" step="any">
+                        <input type="number" id="p02" step="any">
+                    </div>
+                </div>
+
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde G hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p10" step="any">
+                        <input type="number" id="p11" step="any">
+                        <input type="number" id="p12" step="any">
+                    </div>
+                </div>
+
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde L hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p20" step="any">
+                        <input type="number" id="p21" step="any">
+                        <input type="number" id="p22" step="any">
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="calcularMarkov()">Calcular</button>
+            <button class="btn-secondary" onclick="restaurarValores()">Restaurar valores</button>
+        </div>
+
+        <main id="resultsSection" class="results-section">
+            <section class="card" style="margin-bottom: 2rem;">
+                <h3 class="card-title">Tabla de Pronóstico</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Periodo</th>
+                                <th>M (%)</th>
+                                <th>G (%)</th>
+                                <th>L (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3 class="card-title">Desarrollo de los Cálculos</h3>
+                <div class="development-box" id="developmentBox"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const defaults = {
+            vM: 45, vG: 35, vL: 20,
+            p00: 0.88, p01: 0.07, p02: 0.05,
+            p10: 0.10, p11: 0.85, p12: 0.05,
+            p20: 0.15, p21: 0.10, p22: 0.75
+        };
+
+        function cargarValores() {
+            for (const id in defaults) {
+                document.getElementById(id).value = defaults[id];
+            }
+        }
+
+        function restaurarValores() {
+            cargarValores();
+            document.getElementById("errorBox").style.display = "none";
+            document.getElementById("resultsSection").style.display = "none";
+        }
+
+        function mostrarError(mensaje) {
+            const errorBox = document.getElementById("errorBox");
+            errorBox.innerText = mensaje;
+            errorBox.style.display = "block";
+            document.getElementById("resultsSection").style.display = "none";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function esInvalido(valor) {
+            return valor === "" || isNaN(valor) || isNaN(parseFloat(valor));
+        }
+
+        function calcularMarkov() {
+            const errorBox = document.getElementById("errorBox");
+            errorBox.style.display = "none";
+
+            const ids = Object.keys(defaults);
+            for (const id of ids) {
+                const val = document.getElementById(id).value.trim();
+                if (val === "") {
+                    mostrarError(`Error: El campo con ID o fila asociada a '${id}' está vacío.`);
+                    return;
+                }
+                if (esInvalido(val)) {
+                    mostrarError(`Error: El valor en el campo '${id}' no es un número válido.`);
+                    return;
+                }
+            }
+
+            const pi0_M = parseFloat(document.getElementById("vM").value);
+            const pi0_G = parseFloat(document.getElementById("vG").value);
+            const pi0_L = parseFloat(document.getElementById("vL").value);
+
+            const p00 = parseFloat(document.getElementById("p00").value);
+            const p01 = parseFloat(document.getElementById("p01").value);
+            const p02 = parseFloat(document.getElementById("p02").value);
+
+            const p10 = parseFloat(document.getElementById("p10").value);
+            const p11 = parseFloat(document.getElementById("p11").value);
+            const p12 = parseFloat(document.getElementById("p12").value);
+
+            const p20 = parseFloat(document.getElementById("p20").value);
+            const p21 = parseFloat(document.getElementById("p21").value);
+            const p22 = parseFloat(document.getElementById("p22").value);
+
+            const sumaVector = Math.round((pi0_M + pi0_G + pi0_L) * 10000) / 10000;
+            if (sumaVector !== 100) {
+                mostrarError(`Error: Los porcentajes iniciales del vector π⁰ deben sumar 100%. Suma actual: ${pi0_M + pi0_G + pi0_L}%`);
+                return;
+            }
+
+            const sumaFilaM = Math.round((p00 + p01 + p02) * 10000) / 10000;
+            if (sumaFilaM !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila M de la matriz deben sumar 1. Suma actual: ${p00 + p01 + p02}`);
+                return;
+            }
+
+            const sumaFilaG = Math.round((p10 + p11 + p12) * 10000) / 10000;
+            if (sumaFilaG !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila G de la matriz deben sumar 1. Suma actual: ${p10 + p11 + p12}`);
+                return;
+            }
+
+            const sumaFilaL = Math.round((p20 + p21 + p22) * 10000) / 10000;
+            if (sumaFilaL !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila L de la matriz deben sumar 1. Suma actual: ${p20 + p21 + p22}`);
+                return;
+            }
+
+            const v0_M_dec = pi0_M / 100;
+            const v0_G_dec = pi0_G / 100;
+            const v0_L_dec = pi0_L / 100;
+
+            const v1_M_dec = (v0_M_dec * p00) + (v0_G_dec * p10) + (v0_L_dec * p20);
+            const v1_G_dec = (v0_M_dec * p01) + (v0_G_dec * p11) + (v0_L_dec * p21);
+            const v1_L_dec = (v0_M_dec * p02) + (v0_G_dec * p12) + (v0_L_dec * p22);
+
+            const v2_M_dec = (v1_M_dec * p00) + (v1_G_dec * p10) + (v1_L_dec * p20);
+            const v2_G_dec = (v1_M_dec * p01) + (v1_G_dec * p11) + (v1_L_dec * p21);
+            const v2_L_dec = (v1_M_dec * p02) + (v1_G_dec * p12) + (v1_L_dec * p22);
+
+            const pi1_M = v1_M_dec * 100;
+            const pi1_G = v1_G_dec * 100;
+            const pi1_L = v1_L_dec * 100;
+
+            const pi2_M = v2_M_dec * 100;
+            const pi2_G = v2_G_dec * 100;
+            const pi2_L = v2_L_dec * 100;
+
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = `
+                <tr>
+                    <td>Periodo 0</td>
+                    <td>${pi0_M.toFixed(3)}%</td>
+                    <td>${pi0_G.toFixed(3)}%</td>
+                    <td>${pi0_L.toFixed(3)}%</td>
+                </tr>
+                <tr>
+                    <td>Periodo 1</td>
+                    <td>${pi1_M.toFixed(3)}%</td>
+                    <td>${pi1_G.toFixed(3)}%</td>
+                    <td>${pi1_L.toFixed(3)}%</td>
+                </tr>
+                <tr>
+                    <td>Periodo 2</td>
+                    <td>${pi2_M.toFixed(3)}%</td>
+                    <td>${pi2_G.toFixed(3)}%</td>
+                    <td>${pi2_L.toFixed(3)}%</td>
+                </tr>
+            `;
+
+            const devBox = document.getElementById("developmentBox");
+            devBox.innerHTML = `
+                <div class="dev-step">
+                    <h4>Periodo 1 (π¹)</h4>
+                    <div class="dev-line">M¹ = (${v0_M_dec.toFixed(4)})(${p00.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p10.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p20.toFixed(4)}) = ${(v1_M_dec).toFixed(5)} &rarr; <strong>${pi1_M.toFixed(3)}%</strong></div>
+                    <div class="dev-line">G¹ = (${v0_M_dec.toFixed(4)})(${p01.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p11.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p21.toFixed(4)}) = ${(v1_G_dec).toFixed(5)} &rarr; <strong>${pi1_G.toFixed(3)}%</strong></div>
+                    <div class="dev-line">L¹ = (${v0_M_dec.toFixed(4)})(${p02.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p12.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p22.toFixed(4)}) = ${(v1_L_dec).toFixed(5)} &rarr; <strong>${pi1_L.toFixed(3)}%</strong></div>
+                </div>
+                <div class="dev-step">
+                    <h4>Periodo 2 (π²)</h4>
+                    <div class="dev-line">M² = (${v1_M_dec.toFixed(4)})(${p00.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p10.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p20.toFixed(4)}) = ${(v2_M_dec).toFixed(5)} &rarr; <strong>${pi2_M.toFixed(3)}%</strong></div>
+                    <div class="dev-line">G² = (${v1_M_dec.toFixed(4)})(${p01.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p11.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p21.toFixed(4)}) = ${(v2_G_dec).toFixed(5)} &rarr; <strong>${pi2_G.toFixed(3)}%</strong></div>
+                    <div class="dev-line">L² = (${v1_M_dec.toFixed(4)})(${p02.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p12.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p22.toFixed(4)}) = ${(v2_L_dec).toFixed(5)} &rarr; <strong>${pi2_L.toFixed(3)}%</strong></div>
+                </div>
+            `;
+
+            document.getElementById("resultsSection").style.display = "block";
+        }
+
+        window.onload = cargarValores;
+    </script>
+</body>
+</html>

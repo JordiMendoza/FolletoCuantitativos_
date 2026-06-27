@@ -1,0 +1,127 @@
+/* ==========================================================================
+   NUEVOS ESTILOS PARA LA DISTRIBUCIÓN DE TEMAS (DOS COLUMNAS)
+   ========================================================================== */
+
+/* Contenedor principal del tema */
+.theme-container {
+    margin-left: 75px; /* Alínea con la barra lateral colapsada */
+    padding: 60px 5% 60px 5%;
+    width: calc(100% - 75px);
+    max-width: 1300px;
+    display: grid;
+    grid-template-columns: 1fr 320px; /* Columna izquierda flexible, derecha fija */
+    gap: 50px;
+    transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Si la barra lateral se expande, empuja el contenedor */
+.sidebar.expanded ~ .theme-container {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+}
+
+/* Columna Izquierda: Bloques de Contenido estilo Cards */
+.theme-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.theme-header {
+    margin-bottom: 10px;
+}
+
+.theme-header h1 {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    color: var(--text-main);
+    font-weight: 400;
+}
+
+.theme-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+/* Convertimos cada sección del tema en una tarjeta limpia como la landing */
+.theme-section {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-line);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+}
+
+.theme-section h2 {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--text-main);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--accent-line);
+    padding-bottom: 8px;
+}
+
+.theme-section p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    font-weight: 300;
+}
+
+/* Columna Derecha: Contenedor del Card Flotante */
+.theme-sidebar-right {
+    position: relative;
+}
+
+/* El Card mágico que se queda pegado al hacer scroll */
+.sticky-card {
+    position: sticky;
+    top: 40px; /* Se despega 40px del borde superior al bajar */
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-line);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+}
+
+.sticky-card h3 {
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-main);
+    margin-bottom: 20px;
+}
+
+.card-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.card-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    font-weight: 400;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.card-link:hover {
+    color: var(--text-main);
+    padding-left: 5px; /* Sutil animación al pasar el mouse */
+}
+
+/* Ajuste responsive para pantallas pequeñas */
+@media (max-width: 1024px) {
+    .theme-container {
+        grid-template-columns: 1fr; /* Se pone una sola columna en laptops chicas/móviles */
+        padding: 40px 20px;
+    }
+    .theme-sidebar-right {
+        display: none; /* Oculta el card derecho en móviles para que no estorbe */
+    }
+}

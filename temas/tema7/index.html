@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego para practicar conceptos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght=0,500;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #fcfbfa;       /* Blanco hueso/arena suave */
+      --text-main: #2b2a28;      /* Antracita / Grafito oscuro */
+      --text-muted: #646360;     /* Gris tierra suave */
+      --card-bg: #ffffff;        /* Blanco puro */
+      --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano */
+      --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+      --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+      --accent-dot: #4e5c50;     /* Verde musgo desaturado */
+      --success-color: #607462;  /* Verde sutil para aciertos */
+      --error-color: #a36a5e;    /* Rojo sutil para fallos */
+      --transition-speed: 0.3s;
+      
+      --font-serif: 'Lora', Georgia, serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 550px;
+      background: var(--card-bg);
+      border: 1px solid var(--accent-line);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Manejo de Pantallas */
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    /* Récords en LocalStorage */
+    .scores-panel {
+      background: var(--sidebar-bg);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 32px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--accent-line);
+    }
+    .score-row:last-child {
+      border-bottom: none;
+    }
+    .score-label {
+      color: var(--text-muted);
+    }
+    .score-value {
+      font-weight: 600;
+    }
+
+    /* Botones de Interfaz */
+    .btn {
+      display: block;
+      width: 100%;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--accent-line);
+      padding: 14px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .btn:hover {
+      background: var(--sidebar-bg);
+      border-color: var(--text-muted);
+    }
+    .btn-primary {
+      background: var(--text-main);
+      color: var(--bg-color);
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #403f3d;
+    }
+
+    /* Encabezado del Tablero */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+    .lives {
+      letter-spacing: 2px;
+    }
+
+    /* Barra Dinámica de Tiempo */
+    .timer-container {
+      width: 100%;
+      height: 6px;
+      background: var(--sidebar-bg);
+      border-radius: 3px;
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      width: 100%;
+      height: 100%;
+      background: var(--accent-dot);
+      transition: width 0.1s linear;
+    }
+
+    /* Área de Preguntas */
+    .question-text {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      line-height: 1.4;
+      margin-bottom: 28px;
+    }
+
+    /* Opciones Contenedor */
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--accent-line);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background var(--transition-speed), border-color var(--transition-speed);
+    }
+    .option-btn:hover {
+      background: var(--sidebar-bg);
+    }
+    
+    /* Clases de Feedback */
+    .option-btn.correct {
+      background: var(--success-color) !important;
+      color: white;
+      border-color: var(--success-color);
+    }
+    .option-btn.wrong {
+      background: var(--error-color) !important;
+      color: white;
+      border-color: var(--error-color);
+    }
+
+    /* Pantalla de Fin de Juego */
+    .game-over-title {
+      font-family: var(--font-serif);
+      color: var(--text-main);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .result-box {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+      color: var(--text-muted);
+    }
+    .highlight-score {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 8px;
+      display: block;
+    }
+
+      
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+     
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Botón superior de Inicio / Regresar */
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+    .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+      
+        .main-container {
+            margin-left: 75px;
+            padding: 80px 10% 80px 8%;
+            width: 100%;
+            max-width: 1100px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+       
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        .tools-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tool-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tool-item strong {
+            font-weight: 500;
+            font-size: 1.05rem;
+            color: var(--text-main);
+        }
+
+        .tool-item p {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Frase Conclusiva */
+        .conclusion-p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* Créditos de Autoría inferiores */
+        .footer-credits {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .author-tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-tag::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-dot);
+            border-radius: 50%;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+        }
+ 
+       
+  </style>
+</head>
+<body>
+   
+  <nav class="sidebar" id="sideNav">
+    <a href="../../index.html"  class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+        <a href="../tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+          <li>
+                <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+
+
+
+  <div class="container">
+    
+    <div id="menu-screen" class="screen active">
+      <h1>¿Qué tan largo puedes llegar?</h1>
+      <p class="subtitle">Preguntas sobre los distintos temas al estilo preguntados</p>
+      
+      <div class="scores-panel">
+        <div class="score-row">
+          <span class="score-label">Modo Normal:</span>
+          <span id="high-normal" class="score-value">no registrado</span>
+        </div>
+        <div class="score-row">
+          <span class="score-label">Alta Intensidad:</span>
+          <span id="high-intense" class="score-value">no registrado</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="startGame('normal')">Modo Normal</button>
+      <button class="btn" onclick="startGame('intense')">Alta Intensidad</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+      <div class="game-header">
+        <span id="question-counter">Pregunta 1</span>
+        <span id="lives-display" class="lives">🖤🖤</span>
+      </div>
+      
+      <div class="timer-container">
+        <div id="timer-bar" class="timer-bar"></div>
+      </div>
+
+      <div id="question-text" class="question-text">Cargando pregunta...</div>
+      
+      <div id="options-container" class="options-container">
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="screen">
+      <h2 class="game-over-title" id="game-over-msg">Partida Terminada</h2>
+      <div class="result-box">
+        Llegaste hasta la pregunta:
+        <span id="final-score" class="highlight-score">0</span>
+      </div>
+      <button class="btn btn-primary" onclick="showMenu()">Volver al Menú</button>
+    </div>
+
+  </div>
+
+  <script>
+   // --- BANCO DE PREGUNTAS ---
+    const questionBank = [
+      // --- VOGEL ---
+      {
+        question: "En un problema estándar de minimización mediante el Método de Aproximación de Vogel, ¿cómo se calcula la penalización para una fila o columna específica?",
+        options: [
+          "Restando el costo más bajo del segundo costo más bajo en esa fila o columna.",
+          "Restando el costo más alto del costo más bajo de toda la matriz.",
+          "Sumando los dos costos más bajos de la fila o columna.",
+          "Dividiendo el costo más alto entre el segundo costo más alto."
+        ],
+        correct: 0
+      },
+      {
+        question: "Cuando se utiliza el Método de Vogel para un problema de MAXIMIZACIÓN, ¿cuál es el primer paso recomendado para transformar la matriz de ganancias antes de calcular las penalizaciones tradicionales?",
+        options: [
+          "Crear una matriz de costo de oportunidad restando cada celda del valor máximo absoluto de toda la tabla.",
+          "Multiplicar todos los valores de la matriz por -1 y resolverlo como un problema de transporte normal.",
+          "Calcular las penalizaciones restando las dos mayores ganancias de cada fila y columna directamente.",
+          "Dividir cada celda entre la sumatoria total de la oferta y la demanda."
+        ],
+        correct: 0
+      },
+      {
+        question: "Una vez calculadas todas las penalizaciones de filas y columnas en una iteración de Vogel, ¿cuál es el criterio para seleccionar la fila o columna donde se hará la asignación?",
+        options: [
+          "Se selecciona la fila o columna con la penalización más baja.",
+          "Se selecciona la fila o columna que tenga la penalización más alta.",
+          "Se selecciona siempre la primera fila, independientemente de los valores.",
+          "Se escoge la fila o columna de manera aleatoria para evitar sesgos."
+        ],
+        correct: 1
+      },
+      {
+        question: "Después de elegir la fila o columna con la penalización más alta en un problema de minimización, ¿en qué celda específica se debe realizar la asignación de unidades?",
+        options: [
+          "En la celda que tenga el costo unitario más bajo de esa fila o columna.",
+          "En la celda con el costo unitario más alto para eliminarla rápidamente.",
+          "En la celda geométrica central de la fila o columna seleccionada.",
+          "En la celda que tenga la mayor capacidad de demanda, sin importar el costo."
+        ],
+        correct: 0
+      },
+      {
+        question: "Si en una iteración del método de Vogel existe un empate en las penalizaciones más altas, ¿qué regla se debe seguir para romper el empate de manera eficiente?",
+        options: [
+          "El método se detiene por completo y se debe usar obligatoriamente la Esquina Noroeste.",
+          "Se puede elegir cualquiera de las opciones empatadas de forma arbitraria (se recomienda la que tenga el menor costo o permita la mayor asignación).",
+          "Se debe recalcular toda la matriz multiplicando los costos por diez.",
+          "Se cancelan automáticamente las filas involucradas y se pasa a las columnas."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Qué ocurre inmediatamente después de realizar una asignación que agota por completo la oferta de una fila o la demanda de una columna?",
+        options: [
+          "Se debe eliminar o tachar esa fila o columna para los cálculos de las siguientes iteraciones.",
+          "Se mantiene activa y se le asigna una penalización de infinito.",
+          "Se debe reiniciar todo el problema desde la primera iteración.",
+          "Se duplican los costos de las celdas restantes de esa fila o columna."
+        ],
+        correct: 0
+      },
+      {
+        question: "En un problema de maximización transformado mediante la resta del valor máximo absoluto (Max - Celda), ¿qué representa una celda cuyo valor resultante en la matriz de oportunidad es exactamente 0?",
+        options: [
+          "Representa la celda que originalmente ofrecía la mayor ganancia o beneficio del problema.",
+          "Representa una ruta prohibida por la cual no se pueden enviar mercancías.",
+          "Indica que la oferta y la demanda en esa posición pasaron a ser nulas.",
+          "Representa la peor opción de ganancia del problema original."
+        ],
+        correct: 0
+      },
+      // --- SALTO DE PIEDRA EN PIEDRA ---
+      {
+        question: "¿Cuál es el objetivo principal de aplicar el método del Salto de Piedra en Piedra en un problema de transporte?",
+        options: [
+          "Encontrar una solución inicial básica de forma rápida.",
+          "Evaluar las celdas vacías para determinar si la solución actual se puede optimizar (reducir costos o aumentar ganancias).",
+          "Balancear el problema cuando la oferta y la demanda no son iguales.",
+          "Eliminar las filas y columnas que ya no tienen inventario disponible."
+        ],
+        correct: 1
+      },
+      {
+        question: "Para poder aplicar el método del Salto de Piedra en Piedra, ¿qué condición matemática deben cumplir las celdas asignadas (ocupadas), donde m es el número de filas y n el de columnas?",
+        options: [
+          "Debe haber exactamente m + n celdas ocupadas.",
+          "El número de celdas ocupadas debe ser menor o igual a m × n.",
+          "Debe haber exactamente m + n - 1 celdas ocupadas y estar en posiciones independientes.",
+          "El número de celdas vacías debe ser igual al número de celdas llenas."
+        ],
+        correct: 2
+      },
+      {
+        question: "Al evaluar una celda vacía, ¿cómo deben ser el inicio y los giros (esquinas) del camino cerrado o circuito que se construye?",
+        options: [
+          "Comienza en una celda llena y gira únicamente en celdas vacías.",
+          "Comienza en la celda vacía a evaluar y cambia de dirección (gira) exclusivamente en celdas ocupadas.",
+          "Puede comenzar en cualquier celda y girar de forma diagonal en cualquier posición de la matriz.",
+          "Debe pasar obligatoriamente por todas las celdas de la matriz en orden secuencial."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Qué tipo de movimientos geométricos están permitidos al trazar el camino cerrado en la matriz de transporte?",
+        options: [
+          "Movimientos horizontales, verticales y diagonales.",
+          "Únicamente movimientos horizontales y verticales (giros de 90 grados).",
+          "Solo movimientos en forma de 'L', similares al caballo en el ajedrez.",
+          "Movimientos continuos en sentido horario de una sola celda a la vez."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Cuál es la regla para asignar los signos algebraicos a los costos de las celdas que forman el circuito cerrado?",
+        options: [
+          "Se asigna un signo más (+) a la celda vacía inicial, y luego se alternan signos menos (-) y más (+) en cada esquina del camino.",
+          "Se le asigna signo menos (-) a todas las celdas horizontales y más (+) a las verticales.",
+          "Todas las celdas del circuito reciben signo positivo si es un problema de maximización.",
+          "Se asignan signos aleatorios dependiendo del tamaño de la oferta."
+        ],
+        correct: 0
+      },
+      {
+        question: "En un problema de MINIMIZACIÓN de costos, ¿cuándo se determina que la solución actual evaluada por Salto de Piedra en Piedra ya es la óptima?",
+        options: [
+          "Cuando todos los índices de mejora calculados para las celdas vacías son negativos.",
+          "Adando todos los índices de mejora de las celdas vacías son mayores o iguales a cero (>= 0).",
+          "Cuando el costo total de la matriz llega a cero.",
+          "Cuando ya no se pueden construir más circuitos cerrados en la matriz."
+        ],
+        correct: 1
+      },
+      {
+        question: "Si una celda vacía muestra que puede mejorar el resultado y se decide enviar mercancía por ella, ¿cuántas unidades se pueden reasignar como máximo al nuevo circuito?",
+        options: [
+          "La cantidad total de la oferta de la primera fila.",
+          "El promedio de todas las celdas involucradas en el camino cerrado.",
+          "El menor valor de las unidades que se encuentran en las celdas con signo MENOS (-) dentro del circuito.",
+          "Una sola unidad por cada iteración del problema para no desbalancear la tabla."
+        ],
+        correct: 2
+      },
+      {
+        question: "En un problema de MAXIMIZACIÓN de utilidades, ¿cuál celda vacía se debe seleccionar para introducir unidades y mejorar la solución?",
+        options: [
+          "La celda vacía que tenga el índice de mejora más positivo.",
+          "La celda que tenga el costo unitario más bajo de toda la tabla.",
+          "La celda vacía que tenga el índice de mejora más NEGATIVO.",
+          "Cualquier celda vacía de forma aleatoria siempre que su índice sea diferente de cero."
+        ],
+        correct: 2
+      },
+      // --- MODELO DE ASIGNACIÓN ---
+      {
+        question: "Si el problema de asignación busca MAXIMIZAR (por ejemplo, asignar vendedores a zonas para obtener la mayor ganancia), ¿qué transformación inicial se debe aplicar a la matriz?",
+        options: [
+          "Se deben cambiar todos los signos de la oferta y la demanda a valores negativos.",
+          "Se divide toda la matriz entre el número de filas.",
+          "Se identifica el valor máximo de toda la matriz y se le resta cada elemento de la matriz a ese valor máximo.",
+          "Se ignoran los pasos del método y se asigna directamente al costo más alto de cada fila."
+        ],
+        correct: 2
+      },
+      {
+        question: "Una vez alcanzada la condición de optimalidad, ¿en qué celdas específicas se deben realizar las asignaciones definitivas entre recursos y tareas?",
+        options: [
+          "En las celdas que tengan los valores numéricos más altos de la matriz original.",
+          "En las celdas que contienen los valores de CERO (0) creados durante el proceso del algoritmo.",
+          "En las celdas ubicadas estrictamente en la diagonal principal de la matriz.",
+          "En las celdas donde se intersectan el doble de líneas de cobertura."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Cuál es la restricción de capacidad implícita para cada recurso (fila) y cada tarea (columna) en el Modelo de Asignación tradicional?",
+        options: [
+          "Cada recurso puede realizar un número infinito de tareas simultáneamente.",
+          "Las tareas pueden quedar sin asignar si el costo es demasiado elevado.",
+          "Cada recurso se asigna a exactamente una tarea, y cada tarea es realizada por exactamente un recurso.",
+          "El total de recursos asignados debe ser menor o igual al promedio de la demanda."
+        ],
+        correct: 2
+      },
+      // --- ÁRBOL DE EXPANSIÓN MÍNIMA ---
+      {
+        question: "En teoría de redes, ¿qué es exactamente un Árbol de Expansión Mínima para un grafo conectado y no dirigido?",
+        options: [
+          "El camino más corto para ir desde un nodo origen específico hasta un nodo destino final.",
+          "Un subconjunto de aristas que conecta todos los nodos del grafo sin formar ciclos y con el menor peso (o costo) total posible.",
+          "Una red donde todos los nodos tienen exactamente el mismo número de conexiones.",
+          "El camino que recorre únicamente los nodos de los extremos exteriores de la red."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Cuál es la regla principal que sigue el Algoritmo de Kruskal para ir construyendo el Árbol de Expansión Mínima?",
+        options: [
+          "Comienza en un nodo arbitrario y solo puede añadir aristas que estén directamente conectadas a ese nodo inicial.",
+          "Ordena todas las aristas del grafo de menor a mayor peso y las va seleccionando en ese orden, siempre y cuando no formen un ciclo.",
+          "Selecciona primero las aristas con los pesos más altos para descartarlas del sistema de inmediato.",
+          "Conecta los nodos siguiendo un orden alfabético o numérico estricto según su etiqueta."
+        ],
+        correct: 1
+      },
+      {
+        question: "Durante la ejecución de cualquier algoritmo de expansión mínima, ¿qué se debe hacer si la arista con el menor peso disponible conecta dos nodos que ya están comunicados a través de otros enlaces del árbol?",
+        options: [
+          "Se debe incluir obligatoriamente porque tiene el menor costo.",
+          "Se divide el peso de esa arista a la mitad y se vuelve a evaluar al final.",
+          "Se descarta o ignora por completo, ya que incluirla rompería la condición de 'árbol' al crear un ciclo.",
+          "El algoritmo se detiene inmediatamente y reporta que el problema no tiene solución."
+        ],
+        correct: 2
+      },
+      {
+        question: "¿Cuál de las siguientes situaciones del mundo real representa un problema clásico que se resuelve óptimamente con el modelo de Árbol de Expansión Mínima?",
+        options: [
+          "Determinar la ruta de navegación GPS más rápida para un camión entre dos ciudades específicas.",
+          "Decidir el orden de producción de una fábrica para maximizar las utilidades mensuales.",
+          "Diseñar el tendido de cables de fibra óptica para conectar un conjunto de servidores municipales gastando la menor cantidad de cable posible.",
+          "Asignar de forma única a 5 trabajadores en 5 puestos de trabajo diferentes."
+        ],
+        correct: 2
+      },
+      // --- FLUJO MÁXIMO ---
+      {
+        question: "¿Cuál es el objetivo primordial al aplicar el Modelo de Flujo Máximo en una red dirigida?",
+        options: [
+          "Encontrar el camino más corto en distancia entre el origen y el destino.",
+          "Determinar la cantidad máxima de elementos (unidades, vehículos, fluido) que pueden pasar desde un nodo fuente hasta un nodo sumidero por unidad de tiempo.",
+          "Conectar todos los nodos de la red usando el menor número de líneas posible.",
+          "Encontrar el costo mínimo para enviar una cantidad fija de mercancía a través de la red."
+        ],
+        correct: 1
+      },
+      {
+        question: "En el contexto de Flujo Máximo, ¿cómo se les conoce formalmente al nodo donde se origina todo el flujo y al nodo donde termina o se consume todo el flujo, respectivamente?",
+        options: [
+          "Nodo Padre y Nodo Hijo.",
+          "Nodo de Oferta y Nodo de Demanda.",
+          "Fuente y Destino.",
+          "Nodo Básico y Nodo Degenerado."
+        ],
+        correct: 2
+      },
+      {
+        question: "¿Qué regla fundamental (Restricción de Conservación) deben cumplir todos los nodos de la red que NO sean la fuente ni el sumidero?",
+        options: [
+          "El flujo que sale de ellos debe ser el doble del flujo que entró.",
+          "Deben acumular al menos el 50% de las unidades que pasan por ellos.",
+          "La cantidad total de flujo que entra a un nodo intermedio debe ser exactamente igual a la cantidad total de flujo que sale de él.",
+          "No pueden recibir flujo de más de dos aristas de manera simultánea."
+        ],
+        correct: 2
+      },
+      {
+        question: "Al identificar una ruta viable desde la fuente hasta el sumidero, ¿cómo se determina la cantidad máxima de flujo que se puede enviar a través de esa ruta específica?",
+        options: [
+          "Sumando las capacidades de todas las aristas que componen la ruta.",
+          "Seleccionando la menor capacidad (el cuello de botella) entre todas las aristas que forman esa ruta.",
+          "Sacando el promedio aritmético de las capacidades de la ruta.",
+          "Utilizando la capacidad de la arista que esté conectada directamente al sumidero."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Qué representa la 'capacidad residual' de una arista durante las iteraciones de algoritmos como el de Ford-Fulkerson?",
+        options: [
+          "El flujo original que tenía la red antes de empezar el análisis.",
+          "La cantidad de unidades que se perdieron debido a errores de fricción o transporte.",
+          "La capacidad restante o disponible en una arista tras restar el flujo que ya ha sido asignado a través de ella.",
+          "La sumatoria de las capacidades de las aristas vecinas."
+        ],
+        correct: 2
+      },
+      {
+        question: "¿En qué momento se detiene el proceso iterativo para calcular el flujo máximo en una red?",
+        options: [
+          "Cuando se han recorrido exactamente todos los nodos de la red en orden numérico.",
+          "Cuando el sumidero se queda con una capacidad residual de infinito.",
+          "Cuando ya no existe ningún camino aumentante (ruta con capacidad residual mayor a cero) desde la fuente hasta el sumidero.",
+          "Cuando todas las aristas de la red quedan completamente en cero."
+        ],
+        correct: 2
+      },
+      // --- CAMINO MÁS CORTO ---
+      {
+        question: "¿Cuál es el propósito fundamental del Modelo del Camino Más Corto en una red de transporte o comunicaciones?",
+        options: [
+          "Encontrar un árbol que conecte todos los nodos de la red con el menor costo total.",
+          "Maximizar la cantidad de unidades que transitan simultáneamente entre dos puntos.",
+          "Encontrar la ruta que minimice la distancia, el tiempo o el costo total para ir desde un nodo origen específico hasta un nodo destino.",
+          "Determinar el número máximo de aristas que pueden salir de un mismo nodo."
+        ],
+        correct: 2
+      },
+      {
+        question: "¿Cuál es el nombre del algoritmo secuencial más famoso y utilizado para encontrar el camino más corto desde un único nodo origen hacia todos los demás nodos de una red con pesos no negativos?",
+        options: [
+          "Algoritmo de Kruskal.",
+          "Algoritmo de Dijkstra.",
+          "Algoritmo de Ford-Fulkerson.",
+          "Método de la Esquina Noroeste."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Qué limitación importante tiene el algoritmo clásico de Dijkstra respecto a los valores o pesos de las aristas en la red?",
+        options: [
+          "Solo funciona si todos los pesos son números enteros pares.",
+          "Exige que todas las distancias entre nodos sean exactamente iguales a 1.",
+          "No garantiza la solución óptima si la red contiene aristas con pesos o costos negativos.",
+          "Requiere que la red sea completamente simétrica en ambas direcciones."
+        ],
+        correct: 2
+      },
+      {
+        question: "Durante la ejecución del algoritmo de camino más corto, ¿qué información compone típicamente la 'etiqueta' que se le asigna a un nodo en cada iteración?",
+        options: [
+          "El nombre del nodo y la cantidad de aristas que tiene conectadas.",
+          "La distancia total acumulada desde el nodo origen hasta ese nodo, y el nombre del nodo predecesor (del que viene).",
+          "La capacidad máxima de flujo de la arista más cercana y el costo unitario.",
+          "Una variable booleana que indica si el nodo es una fuente o un sumidero."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Cuál de los siguientes sistemas cotidianos utiliza de forma intensiva algoritmos basados en el Modelo del Camino Más Corto para su funcionamiento principal?",
+        options: [
+          "Los sistemas de asignación de turnos para el personal médico en un hospital.",
+          "Las aplicaciones de navegación satelital y GPS (como Google Maps o Waze) para calcular rutas de viaje.",
+          "Los algoritmos de compresión de archivos ZIP y elementos multimedia.",
+          "Los modelos de cálculo de inventario de seguridad en bodegas de manufactura."
+        ],
+        correct: 1
+      },
+      // --- PROGRAMACIÓN ENTERA, METAS Y NO LINEAL ---
+      {
+        question: "¿Cuál es la principal característica que diferencia a un modelo de Programación Entera de uno de Programación Lineal tradicional?",
+        options: [
+          "La función objetivo solo puede tener coeficientes negativos.",
+          "Exige que algunas o todas las variables de decisión tomen únicamente valores enteros en la solución óptima.",
+          "No permite el uso de restricciones de menor o igual.",
+          "Requiere que la matriz de coeficientes sea obligatoriamente una matriz identidad."
+        ],
+        correct: 1
+      },
+      {
+        question: "En Programación Entera, ¿para qué se utilizan típicamente las variables binarias (que solo pueden tomar los valores 0 o 1)?",
+        options: [
+          "Para calcular de forma automática la tasa de interés de un proyecto.",
+          "Para modelar problemas donde la oferta y la demanda cambian cada segundo.",
+          "Para representar decisiones de tipo 'sí o no', como aceptar/rechazar un proyecto o construir/no construir una bodega.",
+          "Para resolver de forma más rápida el algoritmo de la Esquina Noroeste."
+        ],
+        correct: 2
+      },
+      {
+        question: "A diferencia de la programación lineal clásica que busca optimizar una única función objetivo, ¿cuál es la filosofía de la Programación por Metas (Goal Programming)?",
+        options: [
+          "Maximizar el costo total de operación para asegurar el presupuesto del próximo año.",
+          "Eliminar por completo todas las restricciones técnicas del problema.",
+          "Satisfacer múltiples objetivos o metas simultáneamente, minimizando las desviaciones (por exceso o por defecto) respecto a los niveles de aspiración fijados.",
+          "Encontrar el camino más corto en un grafo sin importar las capacidades."
+        ],
+        correct: 2
+      },
+      {
+        question: "En un modelo de Programación por Metas, ¿qué representan las variables de desviación ($d^-$ y $d^+$) asociadas a cada meta?",
+        options: [
+          "El precio sombra de los recursos que se desperdiciaron en la fábrica.",
+          "La cantidad por la cual el logro real se queda por debajo ($d^-$) o supera ($d^+$) el valor de la meta deseada.",
+          "El número de iteraciones que le faltan al algoritmo Simplex para terminar.",
+          "La probabilidad de que el problema no tenga una solución factible."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿Cuándo se determina que un modelo matemático pertenece al campo de la Programación No Lineal?",
+        options: [
+          "Cuando el problema tiene más de 50 restricciones lineales complejas.",
+          "Cuando la solución óptima arroja números decimales muy largos.",
+          "Cuando la función objetivo, o al menos una de sus restricciones, contiene términos no lineales (como variables al cuadrado, multiplicadas entre sí, o funciones logarítmicas/trigonométricas).",
+          "Cuando el problema se resuelve utilizando matrices de costo de oportunidad con ceros."
+        ],
+        correct: 2
+      },
+      {
+        question: "¿Cuál es uno de los mayores desafíos matemáticos al resolver un problema de Programación No Lineal en comparación con uno lineal?",
+        options: [
+          "Los coeficientes siempre deben ser números imaginarios.",
+          "No es posible graficar el problema bajo ninguna circunstancia.",
+          "Los algoritmos pueden quedar atrapados en un óptimo local (un máximo o mínimo relativo de la zona) en lugar de encontrar el óptimo global absoluto.",
+          "Exige que todas las variables de decisión sean estrictamente binarias."
+        ],
+        correct: 2
+      },
+      // --- CADENAS DE MARKOV ---
+      {
+        question: "¿Cuál es la característica principal (Propiedad de Markov) que define a estos modelos estocásticos de toma de decisiones?",
+        options: [
+          "La probabilidad de pasar a un estado futuro depende únicamente de toda la historia de estados pasados del sistema.",
+          "La probabilidad de pasar a un estado futuro depende exclusivamente del estado actual en el que se encuentra el sistema, sin importar cómo se llegó a él.",
+          "El sistema siempre debe terminar en un estado de costo cero.",
+          "Todas las variables del modelo deben ser continuas y seguir una distribución normal."
+        ],
+        correct: 1
+      },
+      {
+        question: "En una Matriz de Transición de Markov tradicional ($P$), ¿qué regla matemática obligatoria deben cumplir los valores de cada una de sus FILAS?",
+        options: [
+          "La suma de los elementos de cada fila debe ser igual a cero.",
+          "Todos los elementos de la fila deben ser números enteros mayores a 10.",
+          "La sumatoria de las probabilidades de cada fila debe ser exactamente igual a 1.",
+          "El valor máximo de una fila debe ser igual al valor mínimo de su columna correspondiente."
+        ],
+        correct: 2
+      },
+      {
+        question: "Dentro de una Cadena de Markov, ¿qué define matemáticamente a un 'Estado Absorbente'?",
+        options: [
+          "Es un estado del cual es imposible salir una vez que el sistema entra en él (su probabilidad de transición hacia sí mismo es 1).",
+          "Es un estado que duplica el valor de todas las variables de decisión en cada iteración.",
+          "Un estado intermedio que divide la matriz de transición exactamente a la mitad.",
+          "Un estado ficticio que se utiliza para balancear la oferta y la demanda."
+        ],
+        correct: 0
+      },
+      {
+        question: "Si conoces la matriz de transición de un paso ($P$), ¿cómo se calcula matemáticamente la matriz de transición para $n$ pasos en el futuro ($P^n$)?",
+        options: [
+          "Multiplicando cada elemento individual de la matriz por el número de pasos $n$.",
+          "Elevando la matriz de transición a la potencia $n$ mediante la multiplicación de matrices ($P \\times P \\times \\dots \\times P$).",
+          "Sacando la raíz en-ésima de los elementos de la diagonal principal.",
+          "Sumando la matriz $P$ consigo misma unas $n$ veces."
+        ],
+        correct: 1
+      },
+      {
+        question: "¿A qué se refiere el concept de 'Estado Estable' o 'Probabilidades de Estado Estacionario' en una Cadena de Markov regular?",
+        options: [
+          "Al momento exacto en que el sistema se detiene y todas las probabilidades caen a cero.",
+          "A una condición donde las filas de la matriz se vuelven completamente idénticas a las columnas.",
+          "A las probabilidades a largo plazo de que el sistema se encuentre en cada estado, las cuales permanecen constantes e independientes del estado inicial.",
+          "Al promedio de las penalizaciones calculadas mediante el método de Vogel."
+        ],
+        correct: 2
+      }
+    ];
+
+    // --- VARIABLES DE ESTADO ---
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let gameMode = 'normal';
+    let lives = 2;
+    let timerInterval = null;
+    let maxTime = 15;
+    let acceptingAnswers = true;
+
+    // Inicialización de récords
+    document.addEventListener("DOMContentLoaded", loadHighScores);
+
+    function loadHighScores() {
+      const normalScore = localStorage.getItem('high_normal');
+      const intenseScore = localStorage.getItem('high_intense');
+
+      document.getElementById('high-normal').innerText = normalScore ? `Pregunta ${normalScore}` : 'no registrado';
+      document.getElementById('high-intense').innerText = intenseScore ? `Pregunta ${intenseScore}` : 'no registrado';
+    }
+
+    // --- INICIO Y MEZCLA DE PREGUNTAS ---
+    function startGame(mode) {
+      gameMode = mode;
+      currentQuestionIndex = 0;
+      acceptingAnswers = true;
+      
+      if (gameMode === 'normal') {
+        lives = 2;
+        maxTime = 15;
+      } else {
+        lives = 1;
+        maxTime = 10;
+      }
+
+      // Mezcla el array de forma aleatoria por partida
+      currentQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+
+      updateLivesDisplay();
+      switchScreen('game-screen');
+      showNextQuestion();
+    }
+
+    function showNextQuestion() {
+      if (currentQuestionIndex >= currentQuestions.length || lives <= 0) {
+        endGame();
+        return;
+      }
+
+      acceptingAnswers = true;
+      const qData = currentQuestions[currentQuestionIndex];
+      
+      document.getElementById('question-counter').innerText = `Pregunta ${currentQuestionIndex + 1}`;
+      document.getElementById('question-text').innerText = qData.question;
+      
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+      
+      qData.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-btn';
+        button.innerText = option;
+        button.onclick = () => checkAnswer(index, button);
+        optionsContainer.appendChild(button);
+      });
+
+      startTimer();
+    }
+
+    // --- MANEJO DE TIEMPO ---
+    function startTimer() {
+      clearInterval(timerInterval);
+      const timerBar = document.getElementById('timer-bar');
+      timerBar.style.width = '100%';
+
+      const intervalStep = 100; 
+      const totalSteps = (maxTime * 1000) / intervalStep;
+      let currentStep = 0;
+
+      timerInterval = setInterval(() => {
+        if (!acceptingAnswers) {
+          clearInterval(timerInterval);
+          return;
+        }
+
+        currentStep++;
+        const percentage = 100 - (currentStep / totalSteps) * 100;
+        timerBar.style.width = `${Math.max(percentage, 0)}%`;
+
+        if (currentStep >= totalSteps) {
+          clearInterval(timerInterval);
+          handleTimeout();
+        }
+      }, intervalStep);
+    }
+
+    function handleTimeout() {
+      if (!acceptingAnswers) return;
+      acceptingAnswers = false;
+      clearInterval(timerInterval);
+      
+      lives--;
+      updateLivesDisplay();
+      highlightCorrectAnswer();
+
+      setTimeout(() => {
+        if (lives <= 0) {
+          endGame();
+        } else {
+          currentQuestionIndex++;
+          showNextQuestion();
+        }
+      }, 1500);
+    }
+
+    // --- EVALUAR RESPUESTA ---
+    function checkAnswer(selectedIndex, selectedButton) {
+      if (!acceptingAnswers) return;
+      acceptingAnswers = false;
+      clearInterval(timerInterval); // Detiene el temporizador inmediatamente al hacer clic
+
+      const qData = currentQuestions[currentQuestionIndex];
+      
+      if (selectedIndex === qData.correct) {
+        selectedButton.classList.add('correct');
+        setTimeout(() => {
+          currentQuestionIndex++;
+          showNextQuestion();
+        }, 1200);
+      } else {
+        selectedButton.classList.add('wrong');
+        highlightCorrectAnswer();
+        lives--;
+        updateLivesDisplay();
+
+        setTimeout(() => {
+          if (lives <= 0) {
+            endGame();
+          } else {
+            currentQuestionIndex++;
+            showNextQuestion();
+          }
+        }, 1500);
+      }
+    }
+
+    function highlightCorrectAnswer() {
+      const qData = currentQuestions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.option-btn');
+      if (buttons[qData.correct]) {
+        buttons[qData.correct].classList.add('correct');
+      }
+    }
+
+    function updateLivesDisplay() {
+      const display = document.getElementById('lives-display');
+      display.innerText = '🖤'.repeat(Math.max(lives, 0));
+    }
+
+    // --- FINALIZACIÓN DE PARTIDA Y PERSISTENCIA ---
+    function endGame() {
+      clearInterval(timerInterval);
+      switchScreen('game-over-screen');
+      
+      const finalScore = currentQuestionIndex; 
+      document.getElementById('final-score').innerText = finalScore;
+
+      const storageKey = gameMode === 'normal' ? 'high_normal' : 'high_intense';
+      const existingRecord = localStorage.getItem(storageKey);
+
+      if (!existingRecord || finalScore > parseInt(existingRecord)) {
+        localStorage.setItem(storageKey, finalScore);
+        document.getElementById('game-over-msg').innerText = "¡Nuevo Récord Personal!";
+      } else {
+        document.getElementById('game-over-msg').innerText = "Partida Terminada";
+      }
+
+      loadHighScores();
+    }
+
+    function showMenu() {
+      switchScreen('menu-screen');
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+
+
+
+         const sideNav = document.getElementById('sideNav');
+
+       
+        sideNav.addEventListener('mouseenter', () => {
+            sideNav.classList.add('expanded');
+        });
+
+      
+        sideNav.addEventListener('mouseleave', () => {
+            sideNav.classList.remove('expanded');
+        });
+  </script>
+</body>
+</html>

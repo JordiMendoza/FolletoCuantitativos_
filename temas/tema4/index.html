@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 4: Modelado de Simulación - Métodos Cuantitativos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+     
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; 
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+      
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+       
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+    
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- MAQUETACIÓN MODULAR (CARDS) --- */
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        /* Encabezado Principal de la Landing Page */
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; } /* Oculta el card lateral en pantallas pequeñas */
+        }
+
+
+        .collapsible-panel {
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+    margin-top: 20px;
+}
+
+.panel-trigger {
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover {
+    background: var(--sidebar-hover);
+}
+
+.panel-content {
+    padding: 20px;
+    display: block; /* Visible por defecto */
+}
+
+/* Cuando tiene la clase 'collapsed', esconde el contenido */
+.collapsible-panel.collapsed .panel-content {
+    display: none;
+}
+
+.panel-icon {
+    transition: transform .25s ease;
+}
+
+/* Cuando tiene la clase 'collapsed', rota la flecha hacia abajo */
+.collapsible-panel.collapsed .panel-icon {
+    transform: rotate(180deg);
+}
+
+
+/* Paleta de colores y variables locales para el simulador */
+:root {
+    --bg-color-sim: #fcfbfa;
+    --text-main-sim: #2b2a28;
+    --text-muted-sim: #646360;
+    --card-bg-sim: #ffffff;
+    --accent-line-sim: #dfdbd3;
+    --accent-dot-sim: #4e5c50; /* Verde Musgo */
+    --node-blue-sim: #3b71ca;
+    --node-red-sim: #dc4c64; /* Rojo Alertas */
+}
+
+.simulator-container {
+    background-color: var(--card-bg-sim);
+    border: 1px solid var(--accent-line-sim);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+    max-width: 1100px;
+    width: 100%;
+    display: flex;
+    gap: 30px;
+    box-sizing: border-box;
+}
+
+.config-column {
+    flex: 0.9;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.simulation-column {
+    flex: 1.1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-header {
+    width: 100%;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--accent-line-sim);
+    padding-bottom: 10px;
+}
+
+.section-header h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-main-sim);
+}
+
+.section-header p {
+    font-size: 0.85rem;
+    color: var(--text-muted-sim);
+    margin: 5px 0 0 0;
+}
+
+.table-wrapper {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--accent-line-sim);
+    border-radius: 8px;
+    background-color: #faf9f6;
+}
+
+.simulator-container table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.simulator-container th, 
+.simulator-container td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--accent-line-sim);
+}
+
+.simulator-container th {
+    background-color: #f5f3ef;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    color: var(--text-main-sim);
+}
+
+.simulator-container .input-field {
+    width: 70px;
+    padding: 5px;
+    border: 1px solid var(--accent-line-sim);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.simulator-container .input-field:focus {
+    outline: none;
+    border-color: var(--accent-dot-sim);
+}
+
+.static-label {
+    font-weight: 600;
+    color: var(--text-main-sim);
+}
+
+.random-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.random-container label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main-sim);
+}
+
+.simulator-container textarea {
+    width: 100%;
+    height: 65px;
+    padding: 10px;
+    border: 1px solid var(--accent-line-sim);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.simulator-container textarea:focus {
+    outline: none;
+    border-color: var(--accent-dot-sim);
+}
+
+.results-grid {
+    display: flex;
+    gap: 15px;
+}
+
+.result-card {
+    flex: 1;
+    background-color: #f3f1ec;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid var(--accent-dot-sim);
+}
+
+.result-card.simulated {
+    border-left-color: var(--node-blue-sim);
+}
+
+.result-card h4 {
+    font-size: 0.85rem;
+    margin: 0 0 5px 0;
+    color: var(--text-muted-sim);
+}
+
+.result-card p {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--accent-dot-sim);
+}
+
+.result-card.simulated p {
+    color: var(--node-blue-sim);
+}
+
+.badge-range {
+    background-color: #dfdbd3;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.error-text {
+    color: var(--node-red-sim);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .simulator-container { flex-direction: column; }
+    .config-column, .simulation-column { flex: 1; }
+}
+
+
+    </style>
+</head>
+<body>
+
+   <nav class="sidebar" id="sideNav">
+    <a href="../../index.html" class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+         <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Modelado de Simulación</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+                Diseño estratégico para conectar nodos y canales logrando el menor costo, distancia o tiempo total.
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+                <section id="teoria" class="content-card">
+                    <h2 class="section-subtitle">Teoría</h2>
+                   <section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">Modelo de Simulación: Método Monte Carlo</h2>
+    
+    <p class="intro-p" style="line-height: 1.7;">
+        La simulación consiste en la modelación matemática de un sistema real mediante procesos estocásticos. Su objetivo es replicar el comportamiento de variables inciertas a lo largo del tiempo para evaluar el desempeño del sistema sin intervenirlo directamente. La exposición se centró en el algoritmo de Monte Carlo, el cual utiliza números pseudoaleatorios para aproximar soluciones en entornos donde la incertidumbre impide un cálculo determinista.
+    </p>
+
+    <div style="margin: 30px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">1. Recolección</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Base empírica histórica.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">2. Probabilidad</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Frecuencia de eventos.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">3. Acumuladas</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Mapeo de rangos.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">4. Aleatorios</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Simulación de variables.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">5. Simulación</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Ejecución iterativa.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 15px; border-radius: 8px; border-top: 4px solid #3498db; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 5px;">6. Análisis</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Toma de decisiones.</div>
+        </div>
+    </div>
+
+    <p style="font-size: 0.95rem; color: var(--text-main);">
+        Este flujo garantiza que cada decisión esté respaldada por una muestra estadística representativa, permitiendo que la incertidumbre pase de ser un obstáculo a ser un factor controlado dentro del análisis empresarial.
+    </p>
+</section>
+                </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de los ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+                      
+                   <!-- Banner de Canva Interactivo (Solo Imagen Clicleable) -->
+<a href="https://canva.link/81gtfbox2r4njcf" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+   
+
+
+
+
+
+
+</a>
+                </section>
+
+                <section id="practica" class="content-card">
+                    <h2 class="section-subtitle">Parte Teórica / Interactiva</h2>
+                    <p class="intro-p">Aquí meteremos los componentes interactivos, tablas o simulaciones dinámicas...</p>
+               
+               
+               
+                  <div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger">
+        <span class="panel-title">
+          Solución a ejercicio practico de Montecarlo en video
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+            Este video se utilizará para explicar cómo realizar el proceso paso a paso para resolver uno de los ejercicios de Montecarlo. Este video fue hecho por mí.
+        </p>
+      <iframe
+    src="https://player.vimeo.com/video/1204392154"
+    width="640"
+    height="360"
+    frameborder="0"
+    allowfullscreen>
+</iframe>
+    </div>
+</div>
+          
+
+
+<div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger">
+        <span class="panel-title">
+            Proceso interactivo para practicar simulaciones de Montecarlo
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+          Esta modulo busca ser un apoyo para la práctica de posibles combinaciones de ejercicios de simulación de Montecarlo.
+          Se podran cambiar valores de historial y de los números randoms para entender como el proceso puede intercambiar su funcionamiento
+        </p>
+        
+          
+        <div class="simulator-container">
+    
+    <div class="config-column">
+        <div class="section-header">
+            <h2>Configuración Base</h2>
+            <p>Modificá los históricos (Máx 10 veces por celda) y los números aleatorios.</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable (X)</th>
+                        <th>Histórico (Veces)</th>
+                        <th>Probabilidad P(X)</th>
+                        <th>Rango (1-100)</th>
+                    </tr>
+                </thead>
+                <tbody id="base-table-body">
+                    <tr>
+                        <td><span class="static-label">10 días</span></td>
+                        <td><input type="number" class="input-field" value="3" min="0" max="10" id="h-0"></td>
+                        <td id="p-0">0.30</td>
+                        <td><span class="badge-range" id="r-0">1 - 30</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="static-label">20 días</span></td>
+                        <td><input type="number" class="input-field" value="4" min="0" max="10" id="h-1"></td>
+                        <td id="p-1">0.40</td>
+                        <td><span class="badge-range" id="r-1">31 - 70</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="static-label">30 días</span></td>
+                        <td><input type="number" class="input-field" value="2" min="0" max="10" id="h-2"></td>
+                        <td id="p-2">0.20</td>
+                        <td><span class="badge-range" id="r-2">71 - 90</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="static-label">40 días</span></td>
+                        <td><input type="number" class="input-field" value="1" min="0" max="10" id="h-3"></td>
+                        <td id="p-3">0.10</td>
+                        <td><span class="badge-range" id="r-3">91 - 100</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="random-container">
+            <label for="random-input">Números Aleatorios (Separados por comas):</label>
+            <textarea id="random-input">75, 18, 55, 32, 91, 4, 61, 89, 27, 49</textarea>
+        </div>
+    </div>
+
+    <div class="simulation-column">
+        <div class="section-header">
+            <h2>Resultados de la Simulación</h2>
+            <p>Corrida automatizada en tiempo real sin errores de cálculo.</p>
+        </div>
+
+        <div class="table-wrapper" style="max-height: 250px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Corrida</th>
+                        <th>Nº Random</th>
+                        <th>Resultado Obtenido</th>
+                    </tr>
+                </thead>
+                <tbody id="simulation-table-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h4>Valor Esperado Teórico</h4>
+                <p id="theoretical-avg">21.0 días</p>
+            </div>
+            <div class="result-card simulated">
+                <h4>Promedio Simulado</h4>
+                <p id="simulated-avg">21.0 días</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    </div>
+
+</div>
+
+               
+                </section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusiones del tema</h2>
+                    <p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+                    </p>
+                    <section class="content-card">
+    <h2 class="section-subtitle">Conclusión</h2>
+    <p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+        Más allá del rigor matemático, la importancia de este modelo radica en evaluar qué tan probable es que ocurran los escenarios que sospechamos. Esto nos permite anticiparnos y actuar justo a tiempo, tomando decisiones basadas en datos y no en suposiciones. En resumen, es la herramienta que nos da el criterio necesario para medir riesgos y reaccionar correctamente antes de que el problema nos explote en la cara en un entorno empresarial real.
+    </p>
+</section>
+                </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de ejercicios en canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+  const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", 
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+
+
+
+document.querySelectorAll(".panel-trigger").forEach(trigger => {
+    trigger.addEventListener("click", function() {
+
+        const panel = this.closest(".collapsible-panel");
+        
+      
+        panel.classList.toggle("collapsed");
+    });
+});
+
+
+
+(function() {
+    // Referencias del DOM
+    const randomInput = document.getElementById('random-input');
+    const simTableBody = document.getElementById('simulation-table-body');
+    const theoreticalAvgEl = document.getElementById('theoretical-avg');
+    const simulatedAvgEl = document.getElementById('simulated-avg');
+
+    // Valores fijos del ejercicio (Días útiles de la máquina)
+    const fixedDays = [10, 20, 30, 40];
+
+    // Escucha eventos de entrada de datos
+    document.addEventListener('input', runMontecarlo);
+
+    function showError(message) {
+        simTableBody.innerHTML = `<tr><td colspan="3" style="text-align:center;" class="error-text">${message}</td></tr>`;
+        theoreticalAvgEl.innerHTML = `<span class="error-text">Error</span>`;
+        simulatedAvgEl.innerHTML = `<span class="error-text">Error</span>`;
+    }
+
+    function runMontecarlo() {
+        let totalHistory = 0;
+        const rowsData = [];
+
+       
+        for (let i = 0; i < 4; i++) {
+            const inputVal = document.getElementById(`h-${i}`).value.trim();
+            
+            if (inputVal === "" || isNaN(inputVal)) {
+                showError("Por favor, rellene todos los campos históricos con números.");
+                return;
+            }
+
+            let histValue = parseInt(inputVal);
+            
+            if (histValue < 0 || histValue > 10) {
+                showError("Los históricos deben estar entre 0 y 10.");
+                return;
+            }
+
+            totalHistory += histValue;
+            rowsData.push({ id: i, value: fixedDays[i], history: histValue, prob: 0, rangeMin: 0, rangeMax: 0 });
+        }
+
+        if (totalHistory === 0) {
+            showError("La suma de los históricos debe ser mayor a 0.");
+            return;
+        }
+
+        // 2. Calcular probabilidades y rangos dinámicos (1-100)
+        let currentLowerLimit = 1;
+        let theoreticalSum = 0;
+
+        rowsData.forEach((row) => {
+            row.prob = row.history / totalHistory;
+            document.getElementById(`p-${row.id}`).innerText = row.prob.toFixed(2);
+
+            if (row.history > 0) {
+                row.rangeMin = currentLowerLimit;
+                row.rangeMax = currentLowerLimit + Math.round(row.prob * 100) - 1;
+                
+                if (row.id === 3 || row.rangeMax > 100) row.rangeMax = 100;
+                
+                document.getElementById(`r-${row.id}`).innerText = `${row.rangeMin} - ${row.rangeMax}`;
+                currentLowerLimit = row.rangeMax + 1;
+            } else {
+                document.getElementById(`r-${row.id}`).innerText = "N/A";
+            }
+
+            theoreticalSum += row.value * row.prob;
+        });
+
+        theoreticalAvgEl.innerText = `${theoreticalSum.toFixed(1)} días`;
+
+     
+        const rawRandomParts = randomInput.value.split(',');
+        const randomNumbers = [];
+
+        if (randomInput.value.trim() === "") {
+            showError("Ingrese al menos un número aleatorio para simular.");
+            return;
+        }
+
+        for (let part of rawRandomParts) {
+            const trimmed = part.trim();
+            if (trimmed === "") continue; 
+            
+            const parsed = parseInt(trimmed);
+            
+            if (isNaN(trimmed) || isNaN(parsed) || parsed < 1 || parsed > 100) {
+                showError("Error: Los números aleatorios deben ser únicamente enteros entre 1 y 100.");
+                return;
+            }
+            randomNumbers.push(parsed);
+        }
+
+       
+        let simulationHTML = '';
+        let simulatedSum = 0;
+
+        randomNumbers.forEach((rn, index) => {
+            let matchLabel = "N/A";
+            let matchValue = 0;
+
+            for (const row of rowsData) {
+                if (row.history > 0 && rn >= row.rangeMin && rn <= row.rangeMax) {
+                    matchLabel = `${row.value} días`;
+                    matchValue = row.value;
+                    break;
+                }
+            }
+
+            simulatedSum += matchValue;
+
+            simulationHTML += `
+                <tr>
+                    <td><b>#${index + 1}</b></td>
+                    <td>P(${rn})</td>
+                    <td>${matchLabel}</td>
+                </tr>
+            `;
+        });
+
+        simTableBody.innerHTML = simulationHTML;
+
+       
+        if (randomNumbers.length > 0) {
+            const simulatedAvg = simulatedSum / randomNumbers.length;
+            simulatedAvgEl.innerText = `${simulatedAvg.toFixed(1)} días`;
+        } else {
+            simulatedAvgEl.innerText = "0.0 días";
+        }
+    }
+
+
+    runMontecarlo();
+})();
+
+
+
+    </script>
+</body>
+</html>

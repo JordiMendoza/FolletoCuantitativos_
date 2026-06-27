@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 3: Modelos de redes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+
+        
+.sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+     
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+        
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Botón superior de Inicio / Regresar */
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        /* Ocultar/Mostrar texto del Side Nav lateral de forma fluida */
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        
+        .main-container {
+            margin-left: 75px; 
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; 
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        /* Encabezado Principal de la Landing Page */
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; } /* Oculta el card lateral en pantallas pequeñas */
+        }
+        
+        .collapsible-panel {
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+    margin-top: 20px;
+}
+
+.panel-trigger {
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover {
+    background: var(--sidebar-hover);
+}
+
+.panel-content {
+    padding: 20px;
+    display: block; /* Visible por defecto */
+}
+
+
+.collapsible-panel.collapsed .panel-content {
+    display: none;
+}
+
+.panel-icon {
+    transition: transform .25s ease;
+}
+
+.collapsible-panel.collapsed .panel-icon {
+    transform: rotate(180deg);
+}
+
+
+
+
+
+.simulator-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+    display: flex;
+    gap: 24px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Columnas */
+.graph-column {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.control-column {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.graph-header {
+    width: 100%;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--accent-line);
+    padding-bottom: 8px;
+}
+
+/* El Lienzo del Grafo SVG */
+#graphSvg {
+    border: 1px solid var(--accent-line);
+    border-radius: 8px;
+    background-color: #faf9f6;
+    width: 100%;
+    height: auto;
+}
+
+/* Estilos de las aristas (Líneas) */
+.edge {
+    stroke: #cbc6bc;
+    stroke-width: 3;
+    transition: stroke 0.4s, stroke-width 0.4s;
+}
+
+.edge.mst-active {
+    stroke: var(--accent-dot);
+    stroke-width: 6;
+}
+
+.edge-label-bg {
+    fill: #faf9f6;
+}
+
+.edge-text {
+    font-size: 14px;
+    font-weight: 600;
+    fill: var(--text-main);
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Nodos */
+circle {
+    stroke: #fff;
+    stroke-width: 3;
+}
+
+.node-text {
+    fill: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Tabla de Inputs */
+.table-wrapper {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--accent-line);
+    border-radius: 8px;
+}
+
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.table-wrapper th, .table-wrapper td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--accent-line);
+}
+
+.table-wrapper th {
+    background-color: #f5f3ef;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.weight-input {
+    width: 55px;
+    padding: 4px;
+    border: 1px solid var(--accent-line);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.weight-input:focus {
+    outline: none;
+    border-color: var(--accent-dot);
+}
+
+/* Tarjeta informativa final */
+.result-card {
+    background-color: #f3f1ec;
+    border-radius: 8px;
+    padding: 12px;
+    border-left: 4px solid var(--accent-dot);
+}
+
+@media (max-width: 1100px) {
+    .simulator-container { flex-direction: column; }
+    .control-column { flex: 1; }
+}
+
+
+
+/* --- ESTILOS EXCLUSIVOS PARA EL SIMULADOR DE FLUJO MÁXIMO --- */
+.simulator-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+    display: flex;
+    gap: 24px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.graph-column {
+    flex: 1.3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.control-column {
+    flex: 0.7;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.graph-header {
+    width: 100%;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--accent-line);
+    padding-bottom: 8px;
+}
+
+#flowSvg {
+    border: 1px solid var(--accent-line);
+    border-radius: 8px;
+    background-color: #faf9f6;
+    width: 100%;
+    height: auto;
+}
+
+/* Flechas y Aristas dirigidas */
+.flow-edge {
+    stroke: #cbc6bc;
+    stroke-width: 3;
+    transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.flow-edge.active-flow {
+    stroke: var(--accent-dot);
+    stroke-width: 5;
+}
+
+.flow-label-bg {
+    fill: #faf9f6;
+    opacity: 0.9;
+}
+
+.flow-text {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--text-main);
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.flow-text.active-text {
+    fill: var(--accent-dot);
+    font-weight: 700;
+}
+
+/* Nodos */
+.flow-node-circle {
+    stroke: #fff;
+    stroke-width: 3;
+}
+
+.flow-node-text {
+    fill: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Contenedores de datos */
+.table-wrapper {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--accent-line);
+    border-radius: 8px;
+}
+
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.table-wrapper th, .table-wrapper td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--accent-line);
+    text-align: left;
+}
+
+.table-wrapper th {
+    background-color: #f5f3ef;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.weight-input {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid var(--accent-line);
+    border-radius: 4px;
+    text-align: center;
+    font-family: var(--font-sans);
+}
+
+.weight-input:focus {
+    outline: none;
+    border-color: var(--accent-dot);
+}
+
+.result-card {
+    background-color: #f3f1ec;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--accent-dot);
+}
+
+/* Desglose manuscrito paso a paso */
+.flow-step-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-line);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+
+@media (max-width: 1150px) {
+    .simulator-container { flex-direction: column; }
+    .control-column { flex: 1; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+<nav class="sidebar" id="sideNav">
+    <a href="../../index.html" class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+         <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Modelos de redes</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+                Diseño estratégico para conectar nodos y canales logrando el menor costo, distancia o tiempo total.
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+                <section id="teoria" class="content-card">
+                    <h2 class="section-subtitle">Teoría</h2>
+                
+<section class="content-card">
+    <h2 class="section-subtitle">Modelado de Redes</h2>
+    <p class="intro-p">
+        Por medio del modelado de redes podemos tener una mejor forma de abarcar problemas relacionados con distancias, distribución logística e incluso la necesidad total de materiales. Por lo cual, en esta exposición se abarcaron tres herramientas esenciales para el desarrollo de problemas de redes.
+    </p>
+
+    
+    <h3 style="margin-top: 20px;">Árbol de Expansión Mínima</h3>
+    <p>Este método sirve para conectar todos los puntos de una red (nodos) de la manera más barata posible, sin crear ciclos. Es como tirar tuberías entre varias casas usando el mínimo material.</p>
+    <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin: 20px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">A</div>
+        <div style="height: 4px; width: 40px; background: #27ae60;"></div>
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">B</div>
+        <div style="height: 4px; width: 40px; background: #27ae60;"></div>
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">C</div>
+    </div>
+
+   
+    <h3 style="margin-top: 20px;">Flujo Máximo</h3>
+    <p>Se usa para saber cuánto producto o datos pueden pasar por una red desde el inicio hasta el fin. Es clave para identificar cuellos de botella y saber el límite real del sistema.</p>
+    <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
+      <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">I</div>
+        <div style="height: 15px; width: 120px; background: #eee; border-radius: 10px; overflow: hidden; border: 1px solid #ccc;">
+            <div style="height: 100%; width: 70%; background: #e67e22;"></div>
+        </div>
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">J</div>
+    </div>
+
+   
+    <h3 style="margin-top: 20px;">Ruta Más Corta</h3>
+    <p>El objetivo es encontrar el camino con el menor costo o distancia entre dos puntos. Es la lógica detrás de aplicaciones como Waze para llegar lo más rápido posible.</p>
+    <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
+        <div style="padding: 10px; border: 2px dashed #c0392b; color: #c0392b; font-weight: bold; border-radius: 5px;">Ruta Óptima (A ➔ D)</div>
+    </div>
+</section>
+                </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+                                  <!-- Banner de Canva Interactivo (Solo Imagen Clicleable) -->
+<a href="https://canva.link/lyfla2b4wox4beh" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+                </section>
+
+                <section id="practica" class="content-card">
+                    <h2 class="section-subtitle">Parte Teórica / Interactiva</h2>
+                    <p class="intro-p">Aquí utilizaremos elementos interactivos para demostrar elementos de la teoria a la practica
+                    </p>
+
+                     
+
+                  <div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger">
+        <span class="panel-title">
+            Proceso interactivo de arbol de expasión minima
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+          Este apartado dinámico busca que se pueda practicar el desarrollo ejercicios de expansión minima.
+          si bien el diseño es estático los valores pueden ser manipulados para motivar al visitante que pueda crear diferentes ejercicios.
+        </p>
+
+     
+       <div class="simulator-container">
+    
+    <div class="graph-column">
+        <div class="graph-header">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">Árbol de Expansión Mínima</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">
+                Modificá los pesos en la tabla de la derecha para ver cómo cambia la red óptima en tiempo real.
+            </p>
+        </div>
+        
+        <svg viewBox="0 0 600 400" id="graphSvg">
+            <g id="edgesContainer"></g>
+            <g id="nodesContainer"></g>
+        </svg>
+    </div>
+
+    <div class="control-column">
+        <div class="graph-header">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">Conexiones y Distancias (modificables)</h3>
+        </div>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Conexión</th>
+                        <th>Distancia (km)</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixBody"></tbody>
+            </table>
+        </div>
+
+        <div class="result-card">
+            <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Costo Total (Distancia Mínima):</h4>
+            <p id="totalWeightDisplay" style="margin-bottom: 15px; font-size: 1.25rem; font-weight: 700; color: var(--accent-dot);">0 km</p>
+            
+            <h4 style="border-top: 1px solid var(--accent-line); padding-top: 10px; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600;">
+                Ruta Óptima Seleccionada (Paso a Paso):
+            </h4>
+            <div id="mstRouteDisplay" style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 500;"></div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+
+
+
+
+    </div>
+ 
+
+<div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger">
+        <span class="panel-title">
+            Comprendiendo como realizar flujo máximo
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+            Está mismo ejemplo fue planteado el día de la exposición del tema. por tanto el buscar replicarlo y dinamizarlo puede ser un buen ejercicios
+            para practicar si el ejercicio se entendio bien en su ejecución. Este apartado permite cambiar valores dentro de este ejercicio y plantear posible
+            nuevos recorridos. 
+        </p>
+        <div class="simulator-container">
+    
+    <div class="graph-column">
+        <div class="graph-header">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">Red de Flujo Máximo</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">
+                Visualizá el flujo enviado sobre la capacidad asignada <strong style="color: var(--accent-dot);">(Flujo / Capacidad)</strong>.
+            </p>
+        </div>
+        
+        <svg viewBox="0 0 650 400" id="flowSvg">
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#cbc6bc" id="arrowMarker" />
+                </marker>
+                <marker id="arrow-active" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#4e5c50" />
+                </marker>
+            </defs>
+            <g id="flowEdgesContainer"></g>
+            <g id="flowNodesContainer"></g>
+        </svg>
+    </div>
+
+    <div class="control-column">
+        <div class="graph-header">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">Capacidades de los Canales (Modificables)</h3>
+        </div>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Arista</th>
+                        <th>Capacidad Máx.</th>
+                    </tr>
+                </thead>
+                <tbody id="flowMatrixBody"></tbody>
+            </table>
+        </div>
+
+        <div class="result-card">
+            <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Flujo Máximo Total Alcanzado:</h4>
+            <p id="maxFlowDisplay" style="margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; color: var(--accent-dot);">0 unidades</p>
+            
+            <h4 style="border-top: 1px solid var(--accent-line); padding-top: 10px; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600;">
+                Caminos Aumentantes Encontrados (Paso a Paso):
+            </h4>
+            <div id="flowStepsDisplay" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; max-height: 200px; overflow-y: auto;">
+                </div>
+        </div>
+    </div>
+</div>
+    </div>
+
+</div>
+
+
+ <div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger">
+        <span class="panel-title">
+            Comprendiendo como realizar un ejercicio de el recorrido más corto
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+            Este video se utilizará para explicar cómo realizar el proceso de un ejercicio de el camino mas corto de para optimizacredes. Este video fue hecho por mí.
+        </p>
+        <iframe src="https://player.vimeo.com/video/1204066518" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+                </section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusión</h2>
+                  <h2 class="section-subtitle">Conclusiones del tema</h2>
+<p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+    Indagando sobre estos temas, me quedó clarísima la importancia de algoritmos como Dijkstra en la programación actual. Además, es muy evidente la similitud que tienen con los modelos de transporte. Sin más que decir, es un tema con algoritmos que, más allá de la toma de decisiones, tienen una relación directa con los algoritmos de estructuras de datos, siendo, para mí, uno de los temas más interesantes de todo el curso.
+</p>
+                </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de ejercicios en canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+   const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+   
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", // Detecta cuando entra al tercio superior
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+   
+ 
+document.querySelectorAll(".panel-trigger").forEach(trigger => {
+    trigger.addEventListener("click", function() {
+        // Selecciona el contenedor .collapsible-panel correcto
+        const panel = this.closest(".collapsible-panel");
+        
+        // Quita o pone la clase 'collapsed'
+        panel.classList.toggle("collapsed");
+    });
+});
+
+
+
+
+
+
+const nodes = {
+    'A': { x: 80,  y: 220, color: 'var(--accent-dot)' }, 
+    'B': { x: 200, y: 80,  color: 'var(--node-blue)' },
+    'C': { x: 340, y: 220, color: '#5c6b73' },
+    'D': { x: 200, y: 350, color: 'var(--node-orange)' },
+    'E': { x: 500, y: 80,  color: 'var(--node-purple)' },
+    'F': { x: 500, y: 290, color: 'var(--node-red)' }    
+};
+
+let edges = [
+    { u: 'A', v: 'B', weight: 7 },
+    { u: 'A', v: 'C', weight: 5 },
+    { u: 'A', v: 'D', weight: 6 },
+    { u: 'B', v: 'C', weight: 2 },
+    { u: 'B', v: 'E', weight: 4 },
+    { u: 'C', v: 'E', weight: 6 },
+    { u: 'C', v: 'F', weight: 4 },
+    { u: 'D', v: 'C', weight: 3 },
+    { u: 'D', v: 'F', weight: 8 },
+    { u: 'E', v: 'F', weight: 3 }
+];
+
+// para Kruskal
+function dsuFind(i, parent) {
+    while (parent[i] !== i) i = parent[i];
+    return i;
+}
+
+function dsuUnion(i, j, parent) {
+    let rootA = dsuFind(i, parent);
+    let rootB = dsuFind(j, parent);
+    parent[rootA] = rootB;
+}
+
+function calculateMST() {
+    let mstEdges = new Set();
+    let totalWeight = 0;
+    let routeNodes = []; 
+
+    let sortedEdges = [...edges].map((e, index) => ({ ...e, index })).sort((a, b) => a.weight - b.weight);
+
+    let parent = {};
+    Object.keys(nodes).forEach(node => parent[node] = node);
+
+    let edgesCount = 0;
+    for (let i = 0; i < sortedEdges.length; i++) {
+        let e = sortedEdges[i];
+        if (dsuFind(e.u, parent) !== dsuFind(e.v, parent)) {
+            mstEdges.add(e.index);
+            totalWeight += e.weight;
+            
+            let pair = [e.u, e.v].sort();
+            routeNodes.push(`${pair[0]} — ${pair[1]} (${e.weight} km)`);
+            
+            dsuUnion(e.u, e.v, parent);
+            edgesCount++;
+            if (edgesCount === Object.keys(nodes).length - 1) break;
+        }
+    }
+
+    // Encender aristas activas del MST
+    edges.forEach((edge, index) => {
+        const lineElement = document.getElementById(`edge-${index}`);
+        if (lineElement) {
+            if (mstEdges.has(index)) {
+                lineElement.classList.add('mst-active');
+            } else {
+                lineElement.classList.remove('mst-active');
+            }
+        }
+    });
+
+    document.getElementById('totalWeightDisplay').textContent = `${totalWeight} km`;
+
+
+    const routeContainer = document.getElementById('mstRouteDisplay');
+    routeContainer.innerHTML = '';
+    routeNodes.forEach((route, idx) => {
+        const badge = document.createElement('span');
+        badge.style.backgroundColor = 'var(--bg-color)';
+        badge.style.border = '1px solid var(--accent-line)';
+        badge.style.color = 'var(--accent-dot)';
+        badge.style.padding = '5px 10px';
+        badge.style.borderRadius = '6px';
+        badge.style.boxShadow = '0 2px 4px rgba(0,0,0,0.01)';
+        badge.innerHTML = `<small style="color: var(--text-muted); margin-right: 6px;">Paso ${idx + 1}:</small> <strong>${route}</strong>`;
+        routeContainer.appendChild(badge);
+    });
+}
+
+function initSimulator() {
+    const edgesContainer = document.getElementById('edgesContainer');
+    const nodesContainer = document.getElementById('nodesContainer');
+    const matrixBody = document.getElementById('matrixBody');
+    
+    if(!edgesContainer || !nodesContainer || !matrixBody) return; // Control por si no carga a tiempo
+
+    // Dibujar Aristas SVG
+    edgesContainer.innerHTML = '';
+    edges.forEach((edge, index) => {
+        const nU = nodes[edge.u];
+        const nV = nodes[edge.v];
+        const midX = (nU.x + nV.x) / 2;
+        const midY = (nU.y + nV.y) / 2;
+
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", nU.x);
+        line.setAttribute("y1", nU.y);
+        line.setAttribute("x2", nV.x);
+        line.setAttribute("y2", nV.y);
+        line.setAttribute("class", "edge");
+        line.setAttribute("id", `edge-${index}`);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", midX - 12);
+        rect.setAttribute("y", midY - 10);
+        rect.setAttribute("width", 24);
+        rect.setAttribute("height", 20);
+        rect.setAttribute("rx", 4);
+        rect.setAttribute("class", "edge-label-bg");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", midX);
+        text.setAttribute("y", midY);
+        text.setAttribute("class", "edge-text");
+        text.setAttribute("id", `edge-text-${index}`);
+        text.textContent = edge.weight;
+
+        group.appendChild(line);
+        group.appendChild(rect);
+        group.appendChild(text);
+        edgesContainer.appendChild(group);
+    });
+
+   
+    nodesContainer.innerHTML = '';
+    Object.keys(nodes).forEach(key => {
+        const node = nodes[key];
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", node.x);
+        circle.setAttribute("cy", node.y);
+        circle.setAttribute("r", 18);
+        circle.setAttribute("fill", node.color);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", node.x);
+        text.setAttribute("y", node.y);
+        text.setAttribute("class", "node-text");
+        text.textContent = key;
+
+        group.appendChild(circle);
+        group.appendChild(text);
+        nodesContainer.appendChild(group);
+    });
+
+    // Construir tabla dinámica de inputs
+    matrixBody.innerHTML = '';
+    edges.forEach((edge, index) => {
+        const tr = document.createElement('tr');
+        const tdNodes = document.createElement('td');
+        tdNodes.innerHTML = `<strong>${edge.u} — ${edge.v}</strong>`;
+        
+        const tdInput = document.createElement('td');
+        const input = document.createElement('input');
+        input.setAttribute('type', 'number');
+        input.setAttribute('class', 'weight-input');
+        input.setAttribute('min', '1');
+        input.value = edge.weight;
+
+        input.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value) || 1;
+            edges[index].weight = val;
+            document.getElementById(`edge-text-${index}`).textContent = val;
+            calculateMST();
+        });
+
+        tdInput.appendChild(input);
+        tr.appendChild(tdNodes);
+        tr.appendChild(tdInput);
+        matrixBody.appendChild(tr);
+    });
+
+    calculateMST();
+}
+
+
+document.addEventListener("DOMContentLoaded", initSimulator);
+
+
+
+
+
+const flowNodes = {
+    'A': { x: 70,  y: 200, color: '#4e5c50' }, // Origen (Verde Musgo)
+    'B': { x: 210, y: 80,  color: '#6b7a82' },
+    'C': { x: 210, y: 200, color: '#6b7a82' },
+    'D': { x: 210, y: 320, color: '#6b7a82' },
+    'E': { x: 390, y: 80,  color: '#6b7a82' },
+    'F': { x: 390, y: 220, color: '#6b7a82' },
+    'G': { x: 390, y: 340, color: '#6b7a82' },
+    'H': { x: 550, y: 210, color: '#2b2a28' }  // Destino (Grafito)
+};
+
+
+let flowEdges = [
+    { u: 'A', v: 'B', capacity: 8, flow: 0 },
+    { u: 'A', v: 'C', capacity: 5, flow: 0 },
+    { u: 'A', v: 'D', capacity: 9, flow: 0 },
+    { u: 'C', v: 'B', capacity: 3, flow: 0 },
+    { u: 'B', v: 'E', capacity: 9, flow: 0 },
+    { u: 'D', v: 'C', capacity: 6, flow: 0 },
+    { u: 'C', v: 'F', capacity: 4, flow: 0 },
+    { u: 'D', v: 'G', capacity: 2, flow: 0 },
+    { u: 'E', v: 'F', capacity: 3, flow: 0 },
+    { u: 'E', v: 'H', capacity: 8, flow: 0 },
+    { u: 'G', v: 'F', capacity: 2, flow: 0 },
+    { u: 'F', v: 'H', capacity: 5, flow: 0 },
+    { u: 'G', v: 'H', capacity: 9, flow: 0 }
+];
+
+function runFordFulkerson() {
+    // Resetear flujos antes de recalcular
+    flowEdges.forEach(e => e.flow = 0);
+    
+    let totalFlow = 0;
+    let stepsLog = [];
+    const source = 'A';
+    const sink = 'H';
+
+    while (true) {
+       
+        let parentMap = {};
+        let queue = [source];
+        let visited = new Set([source]);
+        let found = false;
+
+        while (queue.length > 0) {
+            let current = queue.shift();
+            if (current === sink) {
+                found = true;
+                break;
+            }
+
+         
+            for (let edge of flowEdges) {
+                if (edge.u === current && !visited.has(edge.v) && (edge.capacity - edge.flow) > 0) {
+                    parentMap[edge.v] = { src: current, edge: edge, dir: 1 };
+                    visited.add(edge.v);
+                    queue.push(edge.v);
+                }
+                // Revisar aristas hacia atrás (Flujo residual)
+                else if (edge.v === current && !visited.has(edge.u) && edge.flow > 0) {
+                    parentMap[edge.u] = { src: current, edge: edge, dir: -1 };
+                    visited.add(edge.u);
+                    queue.push(edge.u);
+                }
+            }
+        }
+
+        
+        if (!found) break;
+
+      
+        let path = [];
+        let curr = sink;
+        let bottleneck = Infinity;
+
+        while (curr !== source) {
+            let prevData = parentMap[curr];
+            let available = prevData.dir === 1 ? (prevData.edge.capacity - prevData.edge.flow) : prevData.edge.flow;
+            if (available < bottleneck) bottleneck = available;
+            path.push(prevData);
+            curr = prevData.src;
+        }
+        path.reverse();
+
+
+        path.forEach(p => {
+            if (p.dir === 1) {
+                p.edge.flow += bottleneck;
+            } else {
+                p.edge.flow -= bottleneck;
+            }
+        });
+
+        totalFlow += bottleneck;
+
+     
+        let nodeChain = [source];
+        path.forEach(p => {
+            let targetNode = p.dir === 1 ? p.edge.v : p.edge.u;
+            nodeChain.push(targetNode);
+        });
+
+        let pathString = nodeChain.join(' → ');
+        stepsLog.push({ path: pathString, val: bottleneck });
+    }
+
+    updateFlowUI(totalFlow, stepsLog);
+}
+
+function updateFlowUI(totalFlow, stepsLog) {
+    
+    document.getElementById('maxFlowDisplay').textContent = `${totalFlow} unidades`;
+
+    // Actualizar aristas en el SVG (Texto e iluminación)
+    flowEdges.forEach((edge, index) => {
+        const lineEl = document.getElementById(`flow-edge-${index}`);
+        const textEl = document.getElementById(`flow-text-${index}`);
+        
+        if (textEl) {
+            textEl.textContent = `${edge.flow} / ${edge.capacity}`;
+            if (edge.flow > 0) {
+                textEl.classList.add('active-text');
+                if (lineEl) {
+                    lineEl.classList.add('active-flow');
+                    lineEl.setAttribute("marker-end", "url(#arrow-active)");
+                }
+            } else {
+                textEl.classList.remove('active-text');
+                if (lineEl) {
+                    lineEl.classList.remove('active-flow');
+                    lineEl.setAttribute("marker-end", "url(#arrow)");
+                }
+            }
+        }
+    });
+
+   
+    const stepsContainer = document.getElementById('flowStepsDisplay');
+    stepsContainer.innerHTML = '';
+
+    if (stepsLog.length === 0) {
+        stepsContainer.innerHTML = `<span style="color: var(--text-muted); font-style: italic;">No hay flujo saliendo del origen.</span>`;
+        return;
+    }
+
+    stepsLog.forEach((step, idx) => {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'flow-step-item';
+        stepDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <small style="color: var(--text-muted); font-weight: 600;">Iteración M${idx + 1}:</small>
+                <span style="background-color: #e8e5de; padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--text-main);">
+                    +${step.val}
+                </span>
+            </div>
+            <div style="font-family: monospace; font-size: 0.9rem; color: var(--accent-dot); font-weight: 700; word-break: break-all;">
+                ${step.path}
+            </div>
+        `;
+        stepsContainer.appendChild(stepDiv);
+    });
+}
+
+function initFlowSimulator() {
+    const edgesContainer = document.getElementById('flowEdgesContainer');
+    const nodesContainer = document.getElementById('flowNodesContainer');
+    const matrixBody = document.getElementById('flowMatrixBody');
+    
+    if (!edgesContainer || !nodesContainer || !matrixBody) return;
+
+    // Dibujar aristas con flechas dirigidas
+    edgesContainer.innerHTML = '';
+    flowEdges.forEach((edge, index) => {
+        const nU = flowNodes[edge.u];
+        const nV = flowNodes[edge.v];
+        
+        // Calcular punto medio para las etiquetas numéricas
+        const midX = (nU.x + nV.x) / 2;
+        const midY = (nU.y + nV.y) / 2;
+
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", nU.x);
+        line.setAttribute("y1", nU.y);
+        line.setAttribute("x2", nV.x);
+        line.setAttribute("y2", nV.y);
+        line.setAttribute("class", "flow-edge");
+        line.setAttribute("id", `flow-edge-${index}`);
+        line.setAttribute("marker-end", "url(#arrow)");
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", midX - 18);
+        rect.setAttribute("y", midY - 9);
+        rect.setAttribute("width", 36);
+        rect.setAttribute("height", 18);
+        rect.setAttribute("rx", 3);
+        rect.setAttribute("class", "flow-label-bg");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", midX);
+        text.setAttribute("y", midY);
+        text.setAttribute("class", "flow-text");
+        text.setAttribute("id", `flow-text-${index}`);
+
+        group.appendChild(line);
+        group.appendChild(rect);
+        group.appendChild(text);
+        edgesContainer.appendChild(group);
+    });
+
+    
+    nodesContainer.innerHTML = '';
+    Object.keys(flowNodes).forEach(key => {
+        const node = flowNodes[key];
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", node.x);
+        circle.setAttribute("cy", node.y);
+        circle.setAttribute("r", 16);
+        circle.setAttribute("fill", node.color);
+        circle.setAttribute("class", "flow-node-circle");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", node.x);
+        text.setAttribute("y", node.y);
+        text.setAttribute("class", "flow-node-text");
+        text.textContent = key;
+
+        group.appendChild(circle);
+        group.appendChild(text);
+        nodesContainer.appendChild(group);
+    });
+
+   
+    matrixBody.innerHTML = '';
+    flowEdges.forEach((edge, index) => {
+        const tr = document.createElement('tr');
+        
+        const tdNodes = document.createElement('td');
+        tdNodes.innerHTML = `<strong>${edge.u} → ${edge.v}</strong>`;
+        
+        const tdInput = document.createElement('td');
+        const input = document.createElement('input');
+        input.setAttribute('type', 'number');
+        input.setAttribute('class', 'weight-input');
+        input.setAttribute('min', '0');
+        input.value = edge.capacity;
+
+        input.addEventListener('input', (e) => {
+            let val = Math.max(0, parseInt(e.target.value) || 0);
+            flowEdges[index].capacity = val;
+            runFordFulkerson();
+        });
+
+        tdInput.appendChild(input);
+        tr.appendChild(tdNodes);
+        tr.appendChild(tdInput);
+        matrixBody.appendChild(tr);
+    });
+
+    runFordFulkerson();
+}
+
+document.addEventListener("DOMContentLoaded", initFlowSimulator);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

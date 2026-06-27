@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 2: Programación Entera, por metas, no lineal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+      
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+     
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+       
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+               .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+       
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+       
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+      
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+            /* Compensación para que al redirigir no tape el título de la sección */
+            scroll-margin-top: 40px; 
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        /* CLASE DINÁMICA JS: Iluminación de enlaces del menú lateral derecho */
+        .sticky-link.active-scroll {
+            color: var(--accent-dot) !important;
+            font-weight: 600 !important;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; } /* Oculta el card lateral en pantallas pequeñas */
+        }
+
+
+        
+        .collapsible-panel{
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.panel-trigger{
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover{
+    background: var(--sidebar-hover);
+}
+
+.panel-content{
+    padding: 20px;
+}
+
+.collapsible-panel.collapsed .panel-content{
+    display: none;
+}
+
+.panel-icon{
+    transition: transform .25s ease;
+}
+
+.collapsible-panel.collapsed .panel-icon{
+    transform: rotate(-90deg);
+}
+
+.collapsible-panel {
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+    margin-top: 20px;
+}
+
+.panel-trigger {
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover {
+    background: var(--sidebar-hover);
+}
+
+.panel-content {
+    padding: 20px;
+    display: block; /* Visible por defecto */
+}
+
+
+.collapsible-panel.collapsed .panel-content {
+    display: none;
+}
+
+.panel-icon {
+    transition: transform .25s ease;
+}
+
+/* Cuando tiene la clase 'collapsed', rota la flecha hacia abajo */
+.collapsible-panel.collapsed .panel-icon {
+    transform: rotate(180deg);
+}
+
+.linear-dashboard {
+    display: flex;
+    background-color: #fcfbfa;       /* --bg-color */
+    border: 1px solid #dfdbd3;    /* --accent-line */
+    border-radius: 16px;
+    max-width: 1200px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.01);
+    font-family: 'Inter', sans-serif;
+    color: #2b2a28;      /* --text-main */
+    box-sizing: border-box;
+    margin: 20px auto;
+}
+
+/* Columna Izquierda: Panel de Control (Sidebar) */
+.linear-sidebar {
+    flex: 0.9;
+    background-color: #f3f1ec;     /* --sidebar-bg */
+    border-right: 1px solid #dfdbd3;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+}
+.fo-display {
+    background-color: #ffffff;        /* --card-bg */
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dfdbd3;
+    font-size: 0.95rem;
+}
+
+/* Tipografía Serif para Fórmulas Matemáticas */
+.math-serif {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* Lista y Filas de Restricciones */
+.restrictions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.restriction-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.row-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: 24px;
+}
+
+/* Inputs Estilizados */
+.input-field-linear {
+    width: 100%;
+    max-width: 65px;
+    padding: 6px 8px;
+    border: 1px solid #dfdbd3;
+    border-radius: 6px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #2b2a28;
+    background-color: #ffffff;
+    transition: border-color 0.3s;
+}
+
+.input-field-linear:focus {
+    outline: none;
+    border-color: #4e5c50;     /* --accent-dot */
+}
+
+.var-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2b2a28;
+}
+
+.nn-display {
+    font-size: 0.8rem;
+    color: #646360;
+    padding-left: 32px;
+}
+
+/* Botón de Acción Principal */
+.btn-primary-linear {
+    background-color: #4e5c50;     /* Verde Musgo */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.btn-primary-linear:hover {
+    opacity: 0.9;
+}
+
+/* Banner de Alertas / Errores */
+.error-banner {
+    background-color: #fdf2f2;
+    border-left: 4px solid #dc4c64;  /* --node-red */
+    color: #9b1c1c;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Tabla de Vértices */
+.table-wrapper-linear {
+    border: 1px solid #dfdbd3;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.linear-dashboard table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.linear-dashboard th, 
+.linear-dashboard td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #dfdbd3;
+    text-align: left;
+}
+
+.linear-dashboard th {
+    background-color: #faf9f6;
+    font-weight: 600;
+}
+
+/* Fila de Solución Óptima Destacada */
+.row-optimal {
+    background-color: #f4f6f4 !important;
+    font-weight: 600;
+}
+
+.badge-opt {
+    background-color: #4e5c50;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+/* Columna Derecha: Contenedor del Gráfico */
+.linear-main {
+    flex: 1.1;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.graph-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.graph-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.graph-header h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4e5c50;
+}
+
+/* Contenedor Cuadrado del Canvas */
+.canvas-container {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1px solid #dfdbd3;
+    border-radius: 12px;
+    background-color: #fdfbf7;
+    position: relative;
+    overflow: hidden;
+}
+
+#graphCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Leyendas del Gráfico */
+.graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.75rem;
+    color: #646360;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.line-r1 { border: 1.5px solid #3b71ca; background-color: transparent; }
+.line-r2 { border: 1.5px solid #e67e22; background-color: transparent; }
+.region-f { background-color: rgba(78, 92, 80, 0.12); border: 1px dashed #4e5c50; }
+.point-opt { background-color: #4e5c50; border-radius: 50%; }
+
+/* Media Query Responsiva (Quiebre a una sola columna en pantallas chicas) */
+@media (max-width: 900px) {
+    .linear-dashboard { flex-direction: column; }
+    .linear-sidebar, .linear-main { flex: 1; border-right: none; }
+    .linear-sidebar { border-bottom: 1px solid #dfdbd3; }
+}
+
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar" id="sideNav">
+    <a href="../../index.html" class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+ <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Programación Entera, por metas, no lineal</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+                Optimización de decisiones complejas donde los recursos o elecciones no se pueden dividir
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+               <section id="teoria" class="content-card">
+    <h2 class="section-subtitle">Teoría</h2>
+
+    <section class="content-card" style="margin-bottom: 30px;">
+        <h2 class="section-subtitle">Programación Entera</h2>
+        <p style="font-family: var(--font-sans), sans-serif; font-size: 1.05rem; line-height: 1.7; color: var(--text-main);">
+            En la programación lineal tradicional, los modelos asumen que las variables son continuas, permitiendo resultados con decimales. La <strong>Programación Entera</strong> se aplica cuando el contexto real exige que las variables sean números enteros o valores binarios (0 o 1) para decisiones de "hacer o no hacer".
+        </p>
+
+        <div style="display: flex; justify-content: center; margin: 25px 0; gap: 10px; flex-wrap: wrap; width: 180px; margin-left: auto; margin-right: auto; padding: 15px; background: var(--sidebar-bg); border-radius: 8px;">
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%;"></div>
+        </div>
+
+        <div style="background-color: var(--sidebar-bg); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent-dot);">
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px; margin-bottom: 20px;">
+                <strong style="color: var(--text-main);">El riesgo del redondeo:</strong> No basta con redondear, porque podés violar restricciones o alejarte del óptimo real.
+            </div>
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px;">
+                <strong style="color: var(--text-main);">Diferencia en el gráfico:</strong> La región factible deja de ser un área sombreada y se vuelve una nube de puntos aislados.
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card" style="margin-bottom: 30px;">
+        <h2 class="section-subtitle">Programación por Metas</h2>
+        <p style="font-family: var(--font-sans), sans-serif; font-size: 1.05rem; line-height: 1.7; color: var(--text-main);">
+            La <strong>Programación por Metas</strong> se utiliza cuando coexisten múltiples objetivos organizacionales que entran en conflicto entre sí, como querer maximizar producción pero minimizando costos extra.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 25px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
+            <span style="font-size: 0.8rem; color: #e74c3c;">d- (Falta)</span>
+            <div style="height: 2px; width: 60px; background: var(--text-muted);"></div>
+            <div style="width: 15px; height: 15px; background: #2ecc71; border-radius: 50%;"></div>
+            <div style="height: 2px; width: 60px; background: var(--text-muted);"></div>
+            <span style="font-size: 0.8rem; color: #f39c12;">d+ (Exceso)</span>
+        </div>
+
+        <div style="background-color: var(--sidebar-bg); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent-dot);">
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px; margin-bottom: 20px;">
+                <strong style="color: var(--text-main);">Enfoque en el nivel de desviación:</strong> Usamos variables (d<sup>-</sup> y d<sup>+</sup>) para medir qué tanto nos alejamos de lo planeado.
+            </div>
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px;">
+                <strong style="color: var(--text-main);">Función objetivo:</strong> Se busca minimizar la insatisfacción total penalizando errores según la prioridad de cada meta.
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2 class="section-subtitle">Programación No Lineal</h2>
+        <p style="font-family: var(--font-sans), sans-serif; font-size: 1.05rem; line-height: 1.7; color: var(--text-main);">
+            Este enfoque se activa cuando las relaciones no son constantes, común debido a economías de escala o rendimientos decrecientes.
+        </p>
+
+        <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin: 25px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
+            <div style="width: 50px; height: 50px; border: 3px solid #3498db; border-radius: 50% 0 50% 0;"></div>
+            <span style="font-weight: bold;">VS</span>
+            <div style="width: 50px; height: 50px; border: 3px solid #e67e22;"></div>
+        </div>
+
+        <div style="background-color: var(--sidebar-bg); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent-dot);">
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px; margin-bottom: 20px;">
+                <strong style="color: var(--text-main);">Estructura matemática:</strong> Incorporamos curvas, logaritmos o potencias (X<sup>2</sup>), rompiendo la linealidad simple.
+            </div>
+            <div style="border-left: 3px solid var(--accent-line); padding-left: 20px;">
+                <strong style="color: var(--text-main);">Pérdida de la propiedad del vértice:</strong> El óptimo ya no está necesariamente en una esquina, sino que puede aparecer en cualquier punto de la curva.
+            </div>
+        </div>
+    </section>
+</section>
+                    <div style="height: 400px;"></div> </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+                      
+                       
+<a href="https://canva.link/glven32wmgpzq8v" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+                    <div style="height: 400px;"></div> </section>
+
+                 <section id="practica" class="content-card">
+                    <h2 class="section-subtitle">Parte Teórica / Interactiva</h2>
+                   <div class="collapsible-panel collapsed">
+    <button class="panel-trigger">
+        <span class="panel-title">
+            Solucionador de problemas de programación completa con método gráfico
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+      
+        
+<div class="linear-dashboard">
+    <div class="linear-sidebar">
+        <div class="sidebar-header">
+            <h2>Método Gráfico</h2>
+            <p>Programación Lineal/Entera (2 Variables)</p>
+        </div>
+
+        <div id="error-banner" class="error-banner hidden"></div>
+
+        <div class="config-section">
+            <h3 class="section-title">Función Objetivo</h3>
+            <div class="fo-display">
+                <strong>Maximizar:</strong> <span class="math-serif">Z = 3x + 2y</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3 class="section-title">Restricciones (≤)</h3>
+            <p class="section-subtitle">Asegurá restricciones de la forma: <span class="math-serif">ax + by ≤ c</span></p>
+            
+            <div class="restrictions-list">
+                <div class="restriction-row">
+                    <span class="row-label">R1:</span>
+                    <input type="text" id="r1-a" class="input-field-linear" value="2" placeholder="a">
+                    <span class="var-label">x +</span>
+                    <input type="text" id="r1-b" class="input-field-linear" value="1" placeholder="b">
+                    <span class="var-label">y ≤</span>
+                    <input type="text" id="r1-c" class="input-field-linear" value="6" placeholder="c">
+                </div>
+                <div class="restriction-row">
+                    <span class="row-label">R2:</span>
+                    <input type="text" id="r2-a" class="input-field-linear" value="1" placeholder="a">
+                    <span class="var-label">x +</span>
+                    <input type="text" id="r2-b" class="input-field-linear" value="2" placeholder="b">
+                    <span class="var-label">y ≤</span>
+                    <input type="text" id="r2-c" class="input-field-linear" value="6" placeholder="c">
+                </div>
+                <div class="nn-display">
+                    <span class="math-serif">x ≥ 0, &nbsp; y ≥ 0 &nbsp; (Condición de No Negatividad)</span>
+                </div>
+            </div>
+        </div>
+
+        <button id="btn-calcular" class="btn-primary-linear">Resolver Ejercicio</button>
+
+        <div class="config-section results-section">
+            <h3 class="section-title">Vértices Detectados</h3>
+            <div class="table-wrapper-linear">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vértice (x, y)</th>
+                            <th>Valor Z</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vertices-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="linear-main">
+        <div class="graph-card">
+            <div class="graph-header">
+                <div class="status-dot"></div>
+                <h3>Plano de Optimización Adaptativo</h3>
+            </div>
+            <div class="canvas-container">
+                <canvas id="graphCanvas"></canvas>
+            </div>
+            <div class="graph-legend">
+                <span class="legend-item"><span class="legend-color line-r1"></span> Restricción 1</span>
+                <span class="legend-item"><span class="legend-color line-r2"></span> Restricción 2</span>
+                <span class="legend-item"><span class="legend-color region-f"></span> Región Factible</span>
+                <span class="legend-item"><span class="legend-color point-opt"></span> Punto Óptimo (Entero)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </div>
+
+</div>
+               
+                </section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusión</h2>
+                  <section class="content-card">
+    <h2 class="section-subtitle">Conclusión del tema</h2>
+<p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+    Al final, ver estos modelos nos ayuda a entender que la programación lineal es apenas el punto de partida. Es muy útil para lo básico, pero en el mundo real uno se topa con situaciones donde las cosas no son tan simples: a veces necesitás resultados exactos, lidiar con varios objetivos que se estorban entre sí o trabajar con comportamientos que no son para nada lineales. Lo más importante no es aprenderse el algoritmo de memoria, sino tener el criterio para saber cuál herramienta usar según el problema que uno tenga enfrente. Al final del día, entre mejor sepamos elegir el modelo, más real y útil va a ser la solución que le entreguemos a la empresa.
+</p>
+</section>
+                    <div style="height: 300px;"></div> </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de los ejercicios en canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+  
+
+
+
+        const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+    // --- 2. PEGA ESTO JUSTO AQUÍ ADENTRO (El detector de scroll) ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", // Detecta cuando entra al tercio superior
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+
+
+
+
+document.querySelectorAll(".panel-trigger").forEach(trigger => {
+    trigger.addEventListener("click", function() {
+        // Selecciona el contenedor .collapsible-panel correcto
+        const panel = this.closest(".collapsible-panel");
+        
+     
+        panel.classList.toggle("collapsed");
+    });
+});
+
+(function() {
+    // Captura de elementos del DOM
+    const btnCalcular = document.getElementById('btn-calcular');
+    const errorBanner = document.getElementById('error-banner');
+    const verticesTableBody = document.getElementById('vertices-table-body');
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+
+    
+    btnCalcular.addEventListener('click', procesarMetodoGrafico);
+
+    function mostrarError(mensaje) {
+        errorBanner.innerText = mensaje;
+        errorBanner.classList.remove('hidden');
+        verticesTableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Error en datos</td></tr>`;
+    }
+
+    function ocultarError() {
+        errorBanner.classList.add('hidden');
+        errorBanner.innerText = '';
+    }
+
+    function procesarMetodoGrafico() {
+        ocultarError();
+
+    
+        const regexNum = /^\d+(\.\d+)?$/;
+
+        const inputs = [
+            { id: 'r1-a', name: 'R1 (x)' }, { id: 'r1-b', name: 'R1 (y)' }, { id: 'r1-c', name: 'R1 (Constante)' },
+            { id: 'r2-a', name: 'R2 (x)' }, { id: 'r2-b', name: 'R2 (y)' }, { id: 'r2-c', name: 'R2 (Constante)' }
+        ];
+
+        // --- FILTRO 1: Anti-Letras, Caracteres Especiales o Vacíos ---
+        for (let item of inputs) {
+            const valStr = document.getElementById(item.id).value.trim();
+            if (valStr === '' || !regexNum.test(valStr)) {
+                mostrarError(`Error en ${item.name}: Ingresá únicamente números enteros o flotantes positivos (Usa punto decimal).`);
+                return;
+            }
+        }
+
+        
+        const a1 = parseFloat(document.getElementById('r1-a').value);
+        const b1 = parseFloat(document.getElementById('r1-b').value);
+        const c1 = parseFloat(document.getElementById('r1-c').value);
+
+        const a2 = parseFloat(document.getElementById('r2-a').value);
+        const b2 = parseFloat(document.getElementById('r2-b').value);
+        const c2 = parseFloat(document.getElementById('r2-c').value);
+
+      
+        if ((a1 === 0 && b1 === 0) || (a2 === 0 && b2 === 0)) {
+            mostrarError("Filtro Matemático: Los coeficientes 'x' e 'y' de una misma fila no pueden ser cero simultáneamente (0x + 0y = 0).");
+            return;
+        }
+
+       
+        const det = a1 * b2 - b1 * a2; 
+        let intersection = null;
+
+        if (Math.abs(det) < 1e-9) {
+            // Rectas paralelas
+            if (c1 === 0 || c2 === 0) {
+                mostrarError("La operación no llegará a nada: los datos impiden cerrar un área de solución válida.");
+                return;
+            }
+        } else {
+           
+            const rx = (c1 * b2 - b1 * c2) / det;
+            const ry = (a1 * c2 - c1 * a2) / det;
+            
+            // Si la intersección cae completamente en cuadrantes negativos
+            if (rx < 0 && ry < 0) {
+                mostrarError("La operación no llegará a nada: el área de intersección cae fuera del cuadrante de producción positivo.");
+                return;
+            }
+            intersection = { x: rx, y: ry };
+        }
+
+        // --- RESOLUCIÓN MATEMÁTICA E IDENTIFICACIÓN DE VÉRTICES ---
+        const verticesCandidatos = [
+            { x: 0, y: 0 } // El origen siempre es candidato en restricciones <=
+        ];
+
+        if (a1 > 0) verticesCandidatos.push({ x: c1 / a1, y: 0 });
+        if (b1 > 0) verticesCandidatos.push({ x: 0, y: c1 / b1 });
+        if (a2 > 0) verticesCandidatos.push({ x: c2 / a2, y: 0 });
+        if (b2 > 0) verticesCandidatos.push({ x: 0, y: c2 / b2 });
+        if (intersection) verticesCandidatos.push(intersection);
+
+        // Filtrar candidatos para dejar únicamente los Vértices Factibles
+        const verticesFactibles = [];
+        verticesCandidatos.forEach(p => {
+            const cumpleR1 = (a1 * p.x + b1 * p.y) <= (c1 + 1e-6);
+            const cumpleR2 = (a2 * p.x + b2 * p.y) <= (c2 + 1e-6);
+            const cumpleNoNeg = p.x >= -1e-6 && p.y >= -1e-6;
+
+            if (cumpleR1 && cumpleR2 && cumpleNoNeg) {
+                if (!verticesFactibles.some(v => Math.abs(v.x - p.x) < 1e-4 && Math.abs(v.y - p.y) < 1e-4)) {
+                    verticesFactibles.push({
+                        x: Math.abs(p.x) < 1e-6 ? 0 : p.x,
+                        y: Math.abs(p.y) < 1e-6 ? 0 : p.y
+                    });
+                }
+            }
+        });
+
+        if (verticesFactibles.length <= 1 && verticesFactibles[0].x === 0 && verticesFactibles[0].y === 0) {
+            mostrarError("La operación no llegará a nada: los datos ingresados impiden cerrar un área de solución válida.");
+            return;
+        }
+
+        // --- OPTIMIZACIÓN ENTERA ---
+        let maxZ = -1;
+        let puntoOptimo = null;
+        const listaVerticesConZ = [];
+
+        // Evaluar vértices continuos
+        verticesFactibles.forEach(v => {
+            const zValue = 3 * v.x + 2 * v.y;
+            listaVerticesConZ.push({ x: v.x, y: v.y, z: zValue, esEntero: (Number.isInteger(v.x) && Number.isInteger(v.y)) });
+        });
+
+        // Buscar soluciones enteras dentro de la región acotada
+        let maxXCeil = Math.ceil(Math.max(...verticesFactibles.map(v => v.x)));
+        let maxYCeil = Math.ceil(Math.max(...verticesFactibles.map(v => v.y)));
+
+        for (let x = 0; x <= maxXCeil; x++) {
+            for (let y = 0; y <= maxYCeil; y++) {
+                if ((a1 * x + b1 * y) <= c1 && (a2 * x + b2 * y) <= c2) {
+                    const zEntero = 3 * x + 2 * y;
+                    if (zEntero > maxZ) {
+                        maxZ = zEntero;
+                        puntoOptimo = { x: x, y: y, z: zEntero };
+                    }
+                }
+            }
+        }
+
+        if (!puntoOptimo) {
+            listaVerticesConZ.forEach(v => {
+                if (v.z > maxZ) {
+                    maxZ = v.z;
+                    puntoOptimo = v;
+                }
+            });
+        }
+
+        // Renderizar componentes visuales
+        renderizarTabla(listaVerticesConZ, puntoOptimo);
+        dibujarGraficoAdaptativo(a1, b1, c1, a2, b2, c2, verticesFactibles, puntoOptimo);
+    }
+
+    function renderizarTabla(vertices, optimo) {
+        let html = '';
+        vertices.forEach(v => {
+            const esElOptimo = (v.x === optimo.x && v.y === optimo.y);
+            const claseFila = esElOptimo ? 'class="row-optimal"' : '';
+            const etiqueta = esElOptimo ? '<span class="badge-opt">Óptimo</span>' : 'Factible';
+
+            html += `
+                <tr ${claseFila}>
+                    <td>(${v.x.toFixed(2)}, ${v.y.toFixed(2)})</td>
+                    <td>${v.z.toFixed(2)}</td>
+                    <td>${etiqueta}</td>
+                </tr>
+            `;
+        });
+        verticesTableBody.innerHTML = html;
+    }
+
+    function dibujarGraficoAdaptativo(a1, b1, c1, a2, b2, c2, regionFactible, optimo) {
+        const size = canvas.parentElement.clientWidth;
+        canvas.width = size * 2;
+        canvas.height = size * 2;
+        ctx.scale(2, 2);
+
+        const w = size;
+        const h = size;
+        const padding = 45;
+
+        const cortesX = [0];
+        const cortesY = [0];
+
+        if (a1 > 0) cortesX.push(c1 / a1);
+        if (b1 > 0) cortesY.push(c1 / b1);
+        if (a2 > 0) cortesX.push(c2 / a2);
+        if (b2 > 0) cortesY.push(c2 / b2);
+
+        const maxCoordX = Math.max(...cortesX, 1) * 1.25;
+        const maxCoordY = Math.max(...cortesY, 1) * 1.25;
+        const maxEje = Math.max(maxCoordX, maxCoordY);
+
+        function toPxX(x) { return padding + (x / maxEje) * (w - padding * 2); }
+        function toPxY(y) { return h - padding - (y / maxEje) * (h - padding * 2); }
+
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Grid de fondo
+        ctx.strokeStyle = '#f3f1ec';
+        ctx.lineWidth = 1;
+        const lineasMalla = 10;
+        for (let i = 1; i <= lineasMalla; i++) {
+            let val = (maxEje / lineasMalla) * i;
+            ctx.beginPath(); ctx.moveTo(toPxX(val), toPxY(0)); ctx.lineTo(toPxX(val), toPxY(maxEje)); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(toPxX(0), toPxY(val)); ctx.lineTo(toPxX(maxEje), toPxY(val)); ctx.stroke();
+        }
+
+        // 2. Región Factible (Verde Musgo Transparente)
+        if (regionFactible.length > 2) {
+            const cx = regionFactible.reduce((sum, p) => sum + p.x, 0) / regionFactible.length;
+            const cy = regionFactible.reduce((sum, p) => sum + p.y, 0) / regionFactible.length;
+            regionFactible.sort((p1, p2) => Math.atan2(p1.y - cy, p1.x - cx) - Math.atan2(p2.y - cy, p2.x - cx));
+
+            ctx.fillStyle = 'rgba(78, 92, 80, 0.12)';
+            ctx.beginPath();
+            ctx.moveTo(toPxX(regionFactible[0].x), toPxY(regionFactible[0].y));
+            for (let i = 1; i < regionFactible.length; i++) {
+                ctx.lineTo(toPxX(regionFactible[i].x), toPxY(regionFactible[i].y));
+            }
+            ctx.closePath(); ctx.fill();
+            
+            ctx.strokeStyle = '#4e5c50';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        // 3. Ejes Coordenados
+        ctx.strokeStyle = '#2b2a28';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(toPxX(0), toPxY(0)); ctx.lineTo(toPxX(maxEje), toPxY(0)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(toPxX(0), toPxY(0)); ctx.lineTo(toPxX(0), toPxY(maxEje)); ctx.stroke();
+
+        ctx.fillStyle = '#646360';
+        ctx.font = "500 10px Inter";
+        ctx.fillText("Variable X", w - padding + 5, toPxY(0) + 3);
+        ctx.fillText("Variable Y", toPxX(0) - 20, padding - 10);
+
+        ctx.fillStyle = '#2b2a28';
+        for (let i = 0; i <= 4; i++) {
+            let val = (maxEje / 4) * i;
+            ctx.fillText(val.toFixed(1), toPxX(val) - 8, toPxY(0) + 16);
+            if (i > 0) ctx.fillText(val.toFixed(1), toPxX(0) - 28, toPxY(val) + 3);
+        }
+
+        // 4. Dibujar Rectas de Restricción
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#3b71ca'; // R1 (Azul)
+        ctx.beginPath();
+        ctx.moveTo(toPxX(b1 > 0 ? 0 : c1/a1), toPxY(b1 > 0 ? c1/b1 : maxEje));
+        ctx.lineTo(toPxX(a1 > 0 ? c1/a1 : maxEje), toPxY(a1 > 0 ? 0 : c1/b1));
+        ctx.stroke();
+
+        ctx.strokeStyle = '#e67e22'; // R2 (Naranja)
+        ctx.beginPath();
+        ctx.moveTo(toPxX(b2 > 0 ? 0 : c2/a2), toPxY(b2 > 0 ? c2/b2 : maxEje));
+        ctx.lineTo(toPxX(a2 > 0 ? c2/a2 : maxEje), toPxY(a2 > 0 ? 0 : c2/b2));
+        ctx.stroke();
+
+        // 5. Nodo Óptimo
+        if (optimo) {
+            const optPxX = toPxX(optimo.x);
+            const optPxY = toPxY(optimo.y);
+
+            ctx.fillStyle = 'rgba(78, 92, 80, 0.25)';
+            ctx.beginPath(); ctx.arc(optPxX, optPxY, 7, 0, 2 * Math.PI); ctx.fill();
+
+            ctx.fillStyle = '#4e5c50';
+            ctx.beginPath(); ctx.arc(optPxX, optPxY, 4, 0, 2 * Math.PI); ctx.fill();
+
+            ctx.fillStyle = '#2b2a28';
+            ctx.font = "bold 10px Inter";
+            ctx.fillText(`Óptimo (${optimo.x}, ${optimo.y})`, optPxX + 10, optPxY - 5);
+        }
+    }
+
+    // Inicialización al vuelo
+    procesarMetodoGrafico();
+})();
+
+    </script>
+</body>
+</html>

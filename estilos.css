@@ -1,0 +1,249 @@
+ /* --- ESTILOS DE DISEÑO (Paleta Neutra y Confortable) --- */
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDE NAV COMPACTO E INTERACTIVO --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Expansión del Side Nav mediante JS (mouseenter) */
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Botón superior de Inicio / Regresar */
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+  
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        /* Ocultar/Mostrar texto del Side Nav lateral de forma fluida */
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- MAQUETACIÓN MODULAR (CARDS) --- */
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 10% 80px 8%;
+            width: 100%;
+            max-width: 1100px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        /* Encabezado Principal de la Landing Page */
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        .tools-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tool-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tool-item strong {
+            font-weight: 500;
+            font-size: 1.05rem;
+            color: var(--text-main);
+        }
+
+        .tool-item p {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Frase Conclusiva */
+        .conclusion-p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* Créditos de Autoría inferiores */
+        .footer-credits {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .author-tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-tag::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-dot);
+            border-radius: 50%;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+        }
+ 
+       

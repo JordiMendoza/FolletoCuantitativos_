@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 5: Análisis de Markov - Métodos Cuantitativos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+      
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; 
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 3px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+       
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 1px
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+    .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 1px px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+       
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; } 
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid-inputs {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-dot);
+            border-radius: 50%;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text-muted);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            transition: border-color var(--transition-speed);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-dot);
+        }
+
+        .matrix-row-container {
+            margin-bottom: 1rem;
+        }
+
+        .matrix-row-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        button.btn-primary {
+            background-color: var(--accent-dot);
+            color: #ffffff;
+            border: none;
+        }
+
+        button.btn-primary:hover {
+            background-color: #3d4a3e;
+        }
+
+        button.btn-secondary {
+            background-color: var(--sidebar-bg);
+            color: var(--text-main);
+            border: 1px solid var(--accent-line);
+        }
+
+        button.btn-secondary:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .error-box {
+            background-color: #fff5f5;
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 2.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            background-color: var(--card-bg);
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--accent-line);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--sidebar-bg);
+            font-weight: 500;
+        }
+
+        .development-box {
+            background-color: var(--sidebar-bg);
+            border-left: 3px solid var(--accent-dot);
+            padding: 1.5rem;
+            border-radius: 0 4px 4px 0;
+            font-family: var(--font-sans);
+        }
+
+        .dev-step {
+            margin-bottom: 1.5rem;
+        }
+
+        .dev-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .dev-step h4 {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .dev-line {
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+            font-mono: monospace;
+        }
+    </style>
+</head>
+<body>
+
+   <nav class="sidebar" id="sideNav">
+    <a href="../../index.html" class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+         <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Tema 5: Análisis de Markov</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+                Método estadístico que predice el estado futuro de un sistema basándose únicamente en su estado actual y las probabilidades de transición entre estados.
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+                <section id="teoria" class="content-card">
+                    <h2 class="section-subtitle">Teoría</h2>
+                  <section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">Cadenas de Markov</h2>
+    
+    <p class="intro-p" style="line-height: 1.7;">
+        Es un método para pronosticar cómo evolucionan los sistemas en el tiempo. Su lógica es clave: <strong>el futuro depende únicamente del estado actual</strong>, sin importar lo que haya pasado antes. Es la herramienta perfecta para entender migraciones o cambios de comportamiento.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 20px; margin: 30px 0; padding: 20px; background: var(--sidebar-bg); border-radius: 12px;">
+        <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #3498db; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>
+            <span style="font-size: 0.7rem;">Maxi Palí</span>
+        </div>
+        <div style="display: flex; align-items: center; color: var(--text-muted); font-size: 1.5rem;">➔</div>
+        <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #e67e22; display: flex; align-items: center; justify-content: center; font-weight: bold;">G</div>
+            <span style="font-size: 0.7rem;">Megasuper</span>
+        </div>
+        <div style="display: flex; align-items: center; color: var(--text-muted); font-size: 1.5rem;">➔</div>
+        <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #27ae60; display: flex; align-items: center; justify-content: center; font-weight: bold;">L</div>
+            <span style="font-size: 0.7rem;">Locales</span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-top: 4px solid #3498db;">
+            <div style="font-weight: bold; margin-bottom: 5px;">1. Estados</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Las situaciones posibles donde puede estar el sistema.</p>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-top: 4px solid #e67e22;">
+            <div style="font-weight: bold; margin-bottom: 5px;">2. Matriz de Transición</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Las probabilidades exactas de cambiar de una opción a otra.</p>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-top: 4px solid #27ae60;">
+            <div style="font-weight: bold; margin-bottom: 5px;">3. Estado Estable</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">El punto de equilibrio donde el sistema se estabiliza a largo plazo.</p>
+        </div>
+    </div>
+</section>
+                </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de los ejercicios</h2>
+                  <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+                      
+                               
+<a href="https://canva.link/0x4rx3c4admemu7" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+                    <div style="height: 400px;"></div> </section>
+                </section>
+
+                <section id="practica" class="content-card">
+                    <h2 class="section-subtitle">Parte Teórica/interactiva</h2>
+                    <p class="intro-p">Aquí se puede validar si el proceso en algún problema en cadena de markov va correctamente para desarrollo de periodos</p>
+                    <div class="container">
+        <header>
+        
+            <p class="subtitle">Análisis de participación de mercado para los periodos 0, 1 y 2</p>
+        </header>
+
+        <div id="errorBox" class="error-box"></div>
+
+        <div class="grid-inputs">
+            <section class="card">
+                <h2 class="card-title">Vector Inicial (π⁰)</h2>
+                <div class="form-group">
+                    <div class="input-row">
+                        <div>
+                            <label for="vM">M (%)</label>
+                            <input type="number" id="vM" step="any">
+                        </div>
+                        <div>
+                            <label for="vG">G (%)</label>
+                            <input type="number" id="vG" step="any">
+                        </div>
+                        <div>
+                            <label for="vL">L (%)</label>
+                            <input type="number" id="vL" step="any">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">Matriz de Transición (P)</h2>
+                
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde M hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p00" step="any">
+                        <input type="number" id="p01" step="any">
+                        <input type="number" id="p02" step="any">
+                    </div>
+                </div>
+
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde G hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p10" step="any">
+                        <input type="number" id="p11" step="any">
+                        <input type="number" id="p12" step="any">
+                    </div>
+                </div>
+
+                <div class="matrix-row-container">
+                    <div class="matrix-row-label">Desde L hacia (M, G, L):</div>
+                    <div class="input-row">
+                        <input type="number" id="p20" step="any">
+                        <input type="number" id="p21" step="any">
+                        <input type="number" id="p22" step="any">
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="calcularMarkov()">Calcular</button>
+            <button class="btn-secondary" onclick="restaurarValores()">Restaurar valores</button>
+        </div>
+
+        <main id="resultsSection" class="results-section">
+            <section class="card" style="margin-bottom: 2rem;">
+                <h3 class="card-title">Tabla de Pronóstico</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Periodo</th>
+                                <th>M (%)</th>
+                                <th>G (%)</th>
+                                <th>L (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3 class="card-title">Desarrollo de los Cálculos</h3>
+                <div class="development-box" id="developmentBox"></div>
+            </section>
+        </main>
+    </div>
+                </section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusión</h2>
+                    <p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+                    </p>
+                    <h2 class="section-subtitle">conclusiones del tema</h2>
+<p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+    Puedo ver su importancia en el ámbito comercial porque podrían llegar a ser claves para proyectar la participación de mercado a corto y largo plazo. Son una herramienta clave para entender las tendencias, la lealtad en los clientes y si se están atrayendo a nuevos clientes.
+</p>
+                </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de ejercicio en Canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+  const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", 
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+            const defaults = {
+            vM: 45, vG: 35, vL: 20,
+            p00: 0.88, p01: 0.07, p02: 0.05,
+            p10: 0.10, p11: 0.85, p12: 0.05,
+            p20: 0.15, p21: 0.10, p22: 0.75
+        };
+
+        function cargarValores() {
+            for (const id in defaults) {
+                document.getElementById(id).value = defaults[id];
+            }
+        }
+
+        function restaurarValores() {
+            cargarValores();
+            document.getElementById("errorBox").style.display = "none";
+            document.getElementById("resultsSection").style.display = "none";
+        }
+
+        function mostrarError(mensaje) {
+            const errorBox = document.getElementById("errorBox");
+            errorBox.innerText = mensaje;
+            errorBox.style.display = "block";
+            document.getElementById("resultsSection").style.display = "none";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function esInvalido(valor) {
+            return valor === "" || isNaN(valor) || isNaN(parseFloat(valor));
+        }
+
+        function calcularMarkov() {
+            const errorBox = document.getElementById("errorBox");
+            errorBox.style.display = "none";
+
+            const ids = Object.keys(defaults);
+            for (const id of ids) {
+                const val = document.getElementById(id).value.trim();
+                if (val === "") {
+                    mostrarError(`Error: El campo con ID o fila asociada a '${id}' está vacío.`);
+                    return;
+                }
+                if (esInvalido(val)) {
+                    mostrarError(`Error: El valor en el campo '${id}' no es un número válido.`);
+                    return;
+                }
+            }
+
+            const pi0_M = parseFloat(document.getElementById("vM").value);
+            const pi0_G = parseFloat(document.getElementById("vG").value);
+            const pi0_L = parseFloat(document.getElementById("vL").value);
+
+            const p00 = parseFloat(document.getElementById("p00").value);
+            const p01 = parseFloat(document.getElementById("p01").value);
+            const p02 = parseFloat(document.getElementById("p02").value);
+
+            const p10 = parseFloat(document.getElementById("p10").value);
+            const p11 = parseFloat(document.getElementById("p11").value);
+            const p12 = parseFloat(document.getElementById("p12").value);
+
+            const p20 = parseFloat(document.getElementById("p20").value);
+            const p21 = parseFloat(document.getElementById("p21").value);
+            const p22 = parseFloat(document.getElementById("p22").value);
+
+            const sumaVector = Math.round((pi0_M + pi0_G + pi0_L) * 10000) / 10000;
+            if (sumaVector !== 100) {
+                mostrarError(`Error: Los porcentajes iniciales del vector π⁰ deben sumar 100%. Suma actual: ${pi0_M + pi0_G + pi0_L}%`);
+                return;
+            }
+
+            const sumaFilaM = Math.round((p00 + p01 + p02) * 10000) / 10000;
+            if (sumaFilaM !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila M de la matriz deben sumar 1. Suma actual: ${p00 + p01 + p02}`);
+                return;
+            }
+
+            const sumaFilaG = Math.round((p10 + p11 + p12) * 10000) / 10000;
+            if (sumaFilaG !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila G de la matriz deben sumar 1. Suma actual: ${p10 + p11 + p12}`);
+                return;
+            }
+
+            const sumaFilaL = Math.round((p20 + p21 + p22) * 10000) / 10000;
+            if (sumaFilaL !== 1) {
+                mostrarError(`Error: Las probabilidades de la fila L de la matriz deben sumar 1. Suma actual: ${p20 + p21 + p22}`);
+                return;
+            }
+
+            const v0_M_dec = pi0_M / 100;
+            const v0_G_dec = pi0_G / 100;
+            const v0_L_dec = pi0_L / 100;
+
+            const v1_M_dec = (v0_M_dec * p00) + (v0_G_dec * p10) + (v0_L_dec * p20);
+            const v1_G_dec = (v0_M_dec * p01) + (v0_G_dec * p11) + (v0_L_dec * p21);
+            const v1_L_dec = (v0_M_dec * p02) + (v0_G_dec * p12) + (v0_L_dec * p22);
+
+            const v2_M_dec = (v1_M_dec * p00) + (v1_G_dec * p10) + (v1_L_dec * p20);
+            const v2_G_dec = (v1_M_dec * p01) + (v1_G_dec * p11) + (v1_L_dec * p21);
+            const v2_L_dec = (v1_M_dec * p02) + (v1_G_dec * p12) + (v1_L_dec * p22);
+
+            const pi1_M = v1_M_dec * 100;
+            const pi1_G = v1_G_dec * 100;
+            const pi1_L = v1_L_dec * 100;
+
+            const pi2_M = v2_M_dec * 100;
+            const pi2_G = v2_G_dec * 100;
+            const pi2_L = v2_L_dec * 100;
+
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = `
+                <tr>
+                    <td>Periodo 0</td>
+                    <td>${pi0_M.toFixed(3)}%</td>
+                    <td>${pi0_G.toFixed(3)}%</td>
+                    <td>${pi0_L.toFixed(3)}%</td>
+                </tr>
+                <tr>
+                    <td>Periodo 1</td>
+                    <td>${pi1_M.toFixed(3)}%</td>
+                    <td>${pi1_G.toFixed(3)}%</td>
+                    <td>${pi1_L.toFixed(3)}%</td>
+                </tr>
+                <tr>
+                    <td>Periodo 2</td>
+                    <td>${pi2_M.toFixed(3)}%</td>
+                    <td>${pi2_G.toFixed(3)}%</td>
+                    <td>${pi2_L.toFixed(3)}%</td>
+                </tr>
+            `;
+
+            const devBox = document.getElementById("developmentBox");
+            devBox.innerHTML = `
+                <div class="dev-step">
+                    <h4>Periodo 1 (π¹)</h4>
+                    <div class="dev-line">M¹ = (${v0_M_dec.toFixed(4)})(${p00.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p10.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p20.toFixed(4)}) = ${(v1_M_dec).toFixed(5)} &rarr; <strong>${pi1_M.toFixed(3)}%</strong></div>
+                    <div class="dev-line">G¹ = (${v0_M_dec.toFixed(4)})(${p01.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p11.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p21.toFixed(4)}) = ${(v1_G_dec).toFixed(5)} &rarr; <strong>${pi1_G.toFixed(3)}%</strong></div>
+                    <div class="dev-line">L¹ = (${v0_M_dec.toFixed(4)})(${p02.toFixed(4)}) + (${v0_G_dec.toFixed(4)})(${p12.toFixed(4)}) + (${v0_L_dec.toFixed(4)})(${p22.toFixed(4)}) = ${(v1_L_dec).toFixed(5)} &rarr; <strong>${pi1_L.toFixed(3)}%</strong></div>
+                </div>
+                <div class="dev-step">
+                    <h4>Periodo 2 (π²)</h4>
+                    <div class="dev-line">M² = (${v1_M_dec.toFixed(4)})(${p00.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p10.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p20.toFixed(4)}) = ${(v2_M_dec).toFixed(5)} &rarr; <strong>${pi2_M.toFixed(3)}%</strong></div>
+                    <div class="dev-line">G² = (${v1_M_dec.toFixed(4)})(${p01.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p11.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p21.toFixed(4)}) = ${(v2_G_dec).toFixed(5)} &rarr; <strong>${pi2_G.toFixed(3)}%</strong></div>
+                    <div class="dev-line">L² = (${v1_M_dec.toFixed(4)})(${p02.toFixed(4)}) + (${v1_G_dec.toFixed(4)})(${p12.toFixed(4)}) + (${v1_L_dec.toFixed(4)})(${p22.toFixed(4)}) = ${(v2_L_dec).toFixed(5)} &rarr; <strong>${pi2_L.toFixed(3)}%</strong></div>
+                </div>
+            `;
+
+            document.getElementById("resultsSection").style.display = "block";
+        }
+
+        window.onload = cargarValores;
+
+
+    </script>
+</body>
+</html>

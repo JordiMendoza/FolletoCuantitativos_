@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio de Temas - C14737 </title>
+    
+    <!-- Google Fonts: Inter (Sans-serif) y Lora (Serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS DE DISEÑO (Paleta Neutra y Confortable) --- */
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDE NAV COMPACTO E INTERACTIVO --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Expansión del Side Nav mediante JS (mouseenter) */
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Botón superior de Inicio / Regresar */
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+    .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        /* Ocultar/Mostrar texto del Side Nav lateral de forma fluida */
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- MAQUETACIÓN MODULAR (CARDS) --- */
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 10% 80px 8%;
+            width: 100%;
+            max-width: 1100px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        /* Encabezado Principal de la Landing Page */
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        .tools-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tool-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tool-item strong {
+            font-weight: 500;
+            font-size: 1.05rem;
+            color: var(--text-main);
+        }
+
+        .tool-item p {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Frase Conclusiva */
+        .conclusion-p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* Créditos de Autoría inferiores */
+        .footer-credits {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .author-tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-tag::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-dot);
+            border-radius: 50%;
+        }
+
+        /* Adaptabilidad de Pantalla */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+        }
+ 
+       
+
+
+
+    </style>
+</head>
+<body>
+
+<nav class="sidebar" id="sideNav">
+    <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="temas/tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="temas/tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="temas/tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="temas/tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="temas/tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+        <a href="temas/tema6/index.html" class="nav-item">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+          <li>
+                <a href="temas/tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <!-- ÁREA PRINCIPAL CON ENFOQUE MODULAR -->
+    <main class="main-container">
+        
+        <!-- Título Principal -->
+        <header class="header-section">
+            <h1 class="main-title">Portafolio de temas</h1>
+        </header>
+        
+        <!-- Tarjeta 1: Introducción y Enfoque -->
+        <section class="content-card">
+            <p class="intro-p">
+                Este blog busca explicar de manera interactiva, sencilla y creativa los diferentes temas para el examen final del curso <strong>Métodos Cuantitativos para la toma de decisiones</strong>
+               <br> Profesora del curso: Michelle Jimenez Colorado
+               <br>
+                estudiante: Jordi Mendoza, C14737
+                  <br>
+                   <br>
+                En el panel lateral izquierdo encontrará los 6 temas principales. Cada uno incluye teoría, resolución de ejercicios en Canva, módulos creativos y una conclusión. En los módulos creativos, aprovechando la parte teórica, se brinda la posibilidad de practicar de manera dinámica aspectos esenciales de los temas tratados. Además, se incluye un módulo 7 en el que podrá jugar una trivia con diferentes preguntas relacionadas con los contenidos vistos.
+                <br>
+            </p>
+        </section>
+
+        <!-- Tarjeta 2: Herramientas y Metodología Práctica -->
+        <section class="content-card">
+            <h2 class="section-subtitle">Enfoque Teórico-Práctico</h2>
+            
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <strong>Puntos clave de la teoría</strong>
+                    <p>Puntualizando minuciosamente en los conceptos fundamentales, aquello que nos explica el qué es y comprender con absoluta claridad cómo debemos realizar el proceso práctico de resolución.</p>
+                </div>
+                
+                <div class="tool-item">
+                    <strong>Videotutoriales dedicados</strong>
+                    <p>Se agregaron videos de algunos videos hechos por mi persona, dedicados exclusivamente a explicar en detalle la resolución procedimental de los ejercicios planteados.</p>
+                </div>
+                
+                <div class="tool-item">
+                    <strong>Simulación e interactividad</strong>
+                    <p>La mayoría de los apartados permite utilizar un modúlo que nos permitira cambiar partes de un problema para beneficar a la práctica y mejor entendimiento del tema</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tarjeta 3: Cierre y Alma del Proceso -->
+        <section class="content-card">
+            <p class="conclusion-p">
+                Buscando que cada proceso posea su propia alma, brindando la oportunidad de explorar y contrastar múltiples aproximaciones para resolver con éxito los problemas planteados en los temas del curso.
+            </p>
+        </section>
+
+        <!-- Firma del Autor -->
+        <footer class="footer-credits">
+            <div class="author-tag">
+                Jordi Mendoza Orozco, C14737
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- CONTROL JAVASCRIPT DEL HOVER -->
+    <script>
+        const sideNav = document.getElementById('sideNav');
+
+        // Al hacer Hover (entrar), se expande el Side Nav
+        sideNav.addEventListener('mouseenter', () => {
+            sideNav.classList.add('expanded');
+        });
+
+        // Al quitar el cursor (salir), se retrae automáticamente
+        sideNav.addEventListener('mouseleave', () => {
+            sideNav.classList.remove('expanded');
+        });
+    </script>
+</body>
+</html>

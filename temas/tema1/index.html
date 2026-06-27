@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 1: Modelos de Transporte</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+      
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+.sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+      
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; 
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+       
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal; 
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+      
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+       
+        .main-container {
+            margin-left: 75px; 
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; 
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* Bloques de Enfoque Teórico y Herramientas */
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+      
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; }
+        }
+
+
+
+.vogel-wrapper {
+            margin-top: 25px;
+        }
+
+        
+        .vogel-tabs {
+            display: flex;
+            gap: 6px;
+            background-color: var(--sidebar-bg);
+            padding: 6px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .vogel-tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+            text-align: center;
+        }
+
+        .vogel-tab-btn:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--text-main);
+        }
+
+        .vogel-tab-btn.active {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        /* Grid de Trabajo Espejo */
+        .vogel-workspace {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 25px;
+        }
+
+        .vogel-panel {
+            background-color: var(--bg-color);
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 280px;
+        }
+
+        .vogel-panel h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            border-bottom: 1px dashed var(--accent-line);
+            padding-bottom: 8px;
+        }
+
+        .vogel-arrow {
+            font-size: 1.8rem;
+            color: var(--accent-dot);
+            font-weight: bold;
+        }
+
+        /* Estilo de Tablas */
+        .vogel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .vogel-table th, .vogel-table td {
+            border: 1px solid var(--accent-line);
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .vogel-table th {
+            background-color: var(--sidebar-bg);
+            font-weight: 600;
+        }
+
+        /* Inputs de costos interactivos */
+        .vogel-input {
+            width: 55px;
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            padding: 5px;
+            text-align: center;
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            background-color: var(--card-bg);
+            transition: all var(--transition-speed);
+        }
+
+        .vogel-input:focus {
+            outline: 1px solid var(--accent-dot);
+            background-color: #ffffff;
+            box-shadow: 0 0 4px rgba(78, 92, 80, 0.15);
+        }
+
+        .cell-static {
+            background-color: var(--sidebar-bg);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.88rem;
+        }
+
+        .cell-calculated {
+            font-weight: 600;
+            background-color: var(--sidebar-bg);
+        }
+
+        .cell-highlight {
+            background-color: #f0f4f1; 
+            border: 1px solid var(--accent-dot) !important;
+        }
+
+        /* Celda donde se simula la asignación iterativa */
+        .cell-allocated {
+            background-color: #e4ebe5;
+            font-weight: bold;
+            color: var(--accent-dot);
+            border: 2px solid var(--accent-dot) !important;
+        }
+
+        .penalty-tag {
+            font-weight: 700;
+            color: var(--accent-dot);
+        }
+
+      
+        .vogel-explanation {
+            background-color: var(--sidebar-bg);
+            border-left: 4px solid var(--accent-dot);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .vogel-explanation strong {
+            color: var(--text-main);
+        }
+
+        .vogel-explanation ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .vogel-workspace { grid-template-columns: 1fr; }
+            .vogel-arrow { transform: rotate(90deg); margin: 5px auto; }
+        }
+
+
+.simulation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .simulation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.vector-focus {
+    background-color: var(--color-focus) !important;
+}
+
+.cell-allocated {
+    background-color: #c8d6cb !important;
+    border: 1.5px solid var(--accent-dot) !important;
+    font-weight: bold;
+}
+
+.allocation-badge {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--color-allocated);
+    margin-top: 1px;
+    font-weight: bold;
+}
+
+.line-disabled {
+    background-color: var(--color-disabled) !important;
+    color: var(--text-disabled) !important;
+    opacity: 0.65;
+}
+
+.line-disabled input {
+    background-color: var(--color-disabled) !important;
+    color: var(--text-disabled) !important;
+    border-color: #e0ded8;
+    pointer-events: none;
+}
+
+.val-crossed {
+    text-decoration: line-through;
+    color: #b0ad9e;
+    font-size: 0.78rem;
+    margin-right: 3px;
+}
+
+.val-new {
+    color: var(--accent-dot);
+    font-weight: bold;
+    font-size: 0.88rem;
+}
+
+.penalty-tag {
+    font-weight: 700;
+    color: var(--accent-dot);
+}
+
+.penalty-max-badge {
+    background-color: var(--accent-dot);
+    color: white;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-size: 0.68rem;
+    margin-left: 2px;
+    display: inline-block;
+}
+    
+
+.vogel-workspace {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-x: visible; 
+}
+
+
+.simulation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+
+.vogel-panel {
+    background: var(--card-bg, #ffffff);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-line, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto; /* Si la pantalla es muy pequeña, la tabla individual tendrá scroll interno en vez de romper el layout */
+}
+
+
+.vogel-tabs {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--accent-line, #e2e8f0);
+    padding-bottom: 8px;
+}
+
+.vogel-tab-btn {
+    flex: 1;
+    min-width: 180px; 
+    padding: 10px 16px;
+    text-align: center;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+.collapsible-panel{
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.panel-trigger{
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover{
+    background: var(--sidebar-hover);
+}
+
+.panel-content{
+    padding: 20px;
+}
+
+.collapsible-panel.collapsed .panel-content{
+    display: none;
+}
+
+.panel-icon{
+    transition: transform .25s ease;
+}
+
+.collapsible-panel.collapsed .panel-icon{
+    transform: rotate(-90deg);
+}
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar" id="sideNav">
+        <a href="../../index.html" class="btn-home">
+            <span class="icon-num">←</span>
+            <span class="nav-text">Regresar al inicio</span>
+        </a>
+        
+        <ul class="nav-links">
+            <li>
+                <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                    <span class="icon-num">01</span>
+                    <span class="nav-text">Tema 1: Modelos de Transporte</span>
+                </a>
+            </li>
+            <li>
+                <a href="../tema2/index.html" class="nav-item">
+                    <span class="icon-num">02</span>
+                    <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+                </a>
+            </li>
+            <li>
+                <a href="../tema3/index.html" class="nav-item">
+                    <span class="icon-num">03</span>
+                    <span class="nav-text">Tema 3: Modelos de redes
+</span>
+                </a>
+            </li>
+            <li>
+                <a href="../tema4/index.html" class="nav-item">
+                    <span class="icon-num">04</span>
+                    <span class="nav-text">Tema 4: Modelado de Simulación </span>
+                </a>
+            </li>
+            <li>
+                <a href="../tema5/index.html" class="nav-item">
+                    <span class="icon-num">05</span>
+                    <span class="nav-text">Tema 5: Análisis de Markov</span>
+                </a>
+            </li>
+                 <li>
+                <a href="../tema6/index.html" class="nav-item">
+                    <span class="icon-num">06</span>
+                    <span class="nav-text">Tema 6: Control estadistico</span>
+                </a>
+            </li>
+              <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Modelos de Transporte</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+                Optimización y distribución eficiente de recursos.
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+                <section id="teoria" class="content-card">
+                    <h2 class="section-subtitle">Teoría</h2>
+<section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">1. El Modelo de Transporte y su Función Objetivo</h2>
+    <p class="intro-p">
+        Un <strong>Modelo de Transporte</strong> es básicamente un plan logístico orientado a un objetivo. Sirve para calcular cómo mandar mercancía desde varios puntos de origen hasta varios puntos de destino. Dentro de los objetivos estipulados por la empresa podemos decir que se debe cumplir con la demanda pero gastando lo menos posible en las entregas o ganando el máximo, según el objetivo empresarial que se le quiera dar.
+    </p>
+
+    <div style="background-color: var(--sidebar-bg); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent-dot); margin-bottom: 25px;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 12px; color: var(--text-main);">¿Cómo se levanta la Función Objetivo?</h3>
+        <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 15px; color: var(--text-main);">
+            Para armar la ecuación principal, ocupás cruzar los datos de la matriz. Cada ruta que conecta un origen con un destino tiene dos variables:
+        </p>
+        <ul style="margin-left: 20px; line-height: 1.6; color: var(--text-main); font-size: 1rem; margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px;">
+            <li><strong>C<sub>ij</sub></strong>: El costo de enviar una sola unidad por esa ruta específica.</li>
+            <li><strong>X<sub>ij</sub></strong>: La cantidad real de unidades que decidís mandar por ahí (esta es tu variable de decisión, lo que ocupás averiguar).</li>
+        </ul>
+        <p style="font-size: 1rem; line-height: 1.6; color: var(--text-main);">
+            Si multiplicás el costo de la ruta por la cantidad de unidades que viajan por ella, y sumás todas las combinaciones de la tabla, tenés tu Función Objetivo:
+        </p>
+        
+        <div style="text-align: center; margin: 20px 0; font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main);">
+            <span style="color: var(--text-muted); font-size: 0.95rem; display: block; margin-bottom: 5px;">Para Minimizar Costos:</span>
+            <strong>Minimizar Z = &sum; &sum; (C<sub>ij</sub> &times; X<sub>ij</sub>)</strong>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0; font-family: var(--font-serif); font-size: 1.25rem; color: var(--text-main);">
+            <span style="color: var(--text-muted); font-size: 0.95rem; display: block; margin-bottom: 5px;">Para Maximizar Utilidades (G<sub>ij</sub> = Ganancia):</span>
+            <strong>Maximizar Z = &sum; &sum; (G<sub>ij</sub> &times; X<sub>ij</sub>)</strong>
+        </div>
+    </div>
+
+    <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 12px; color: var(--text-main);">Todo problema de modelo de transporte estará limitado por restricciones</h3>
+    <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 15px; color: var(--text-main);">
+        El sistema no se puede mandar solo, tiene que respetar tres amarras:
+    </p>
+    <ul style="margin-left: 20px; line-height: 1.7; color: var(--text-main); font-size: 1rem; display: flex; flex-direction: column; gap: 10px;">
+        <li><strong>No exceder oferta disponible:</strong> Lo que sale de una bodega no puede superar la Oferta disponible en esa bodega.</li>
+        <li><strong>Cumplir con la demanda establecida:</strong> Lo que llega a cada destino tiene que cumplir exactamente con la Demanda que pidió el cliente.</li>
+        <li><strong>El balance obligatorio:</strong> Para que los algoritmos corran bien, la Oferta Total debe ser igual a la Demanda Total. Si están desbalanceadas, se inventa un origen o destino "ficticio" con costo $0 para equilibrar la balanza a la fuerza.</li>
+    </ul>
+</section>
+
+<section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">2. El Método de Vogel (VAM)</h2>
+    <p class="intro-p">
+        Vogel es un método crucial para arrancar. Vogel analiza los costos de oportunidad mediante penalizaciones para ver dónde dolería más no asignar mercancía. Nos da una solución inicial tan buena que casi siempre queda a un paso de la óptima. Es aplicable tanto para la minimización como la optimización.
+    </p>
+
+    <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 12px; color: var(--text-main);">El paso a paso:</h3>
+    <ol style="margin-left: 20px; line-height: 1.7; color: var(--text-main); font-size: 1rem; display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+        <li><strong>Calcular el "castigo":</strong> Te fijás en cada fila y en cada columna, buscás los dos costos más bajos y los restás. Ese resultado es tu penalización. Te dice cuánto va a subir el costo si dejás ir la ruta más barata.</li>
+        <li><strong>Buscar el número más alto:</strong> Revisás todas las penalizaciones y te vas de ride con la fila o columna que tenga el número más grande. Ahí es donde el peligro de gastar de más es crítico.</li>
+        <li><strong>Asignar al más barato:</strong> En esa fila o columna conflictiva, buscás la celda que cobre menos y le metés todo el producto que podás, hasta secar la oferta de la bodega o saciar la demanda del cliente.</li>
+        <li><strong>Tachar y repetir:</strong> La fila o columna que se quede en cero se tacha y se olvida. Volvés a calcular penalizaciones con lo que quede vivo y repetís hasta repartir todo el inventario.</li>
+    </ol>
+
+    <div style="background-color: #f6f8f6; padding: 20px; border-radius: 12px; border: 1px dashed var(--accent-line);">
+        <strong style="color: var(--accent-dot); display: block; margin-bottom: 6px;">¿Y si es Maximización?</strong>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin: 0;">
+            Vogel está programado para buscar mínimos. Si tenés una matriz de ganancias, tenés que engañar al algoritmo, buscás la ganancia más alta de toda la tabla y se la restás a cada una de las celdas. Esto genera una "matriz de costo de oportunidad" donde las ganancias más altas se vuelven un $0. A partir de ahí, lo resolvés como una minimización normal.
+        </p>
+    </div>
+</section>
+
+<section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">3. Salto de Piedra en Piedra (Stepping-Stone)</h2>
+    <p class="intro-p">
+        Una vez que Vogel te dejó la tabla con las celdas llenas (celdas básicas), ocupás verificar si esa repartición de verdad es la óptima absoluta o si se puede pulir más para ahorrar más plata. Ahí entra el Salto de Piedra en Piedra.
+    </p>
+
+    <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 12px; color: var(--text-main);">La lógica de los saltos:</h3>
+    <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 20px; color: var(--text-main);">
+        Toca imaginar que las celdas llenas son "piedras firmes" en un río y las vacías son agua. Para evaluar si vale la pena abrir una ruta que está vacía, te parás en ella y armás un camino cerrado (un circuito) saltando sobre las llenas:
+    </p>
+
+    <ul style="margin-left: 20px; line-height: 1.7; color: var(--text-main); font-size: 1rem; display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+        <li><strong>Giros a 90°:</strong> Podés moverte horizontal o verticalmente, pero solo podés cambiar de dirección (girar) si estás parado sobre una celda llena.</li>
+        <li><strong>El juego de los signos:</strong> Al camino le ponés signos alternados. La celda vacía donde empezás siempre lleva un <strong>(+)</strong>, la siguiente esquina un <strong>(-)</strong>, luego un <strong>(+)</strong>, y así hasta cerrar el ciclo.</li>
+        <li><strong>Calcular el Índice de Mejora:</strong> Sumás y restás los costos de las celdas del circuito siguiendo sus signos.
+            <ul style="margin-left: 20px; margin-top: 5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 5px;">
+                <li><em>En Minimización:</em> Si el resultado da negativo, significa que por cada unidad que metáis en esa ruta vacía, el costo total va a bajar. Si todos los índices dan cero o positivos, ya terminaste: la solución es perfecta.</li>
+                <li><em>En Maximización:</em> Si usás los datos de ganancias originales, buscás índices positivos para aumentar la utilidad, el obtener 0 son posibles soluciones alternas que no da una mejora, obtener números negativos significa pérdidas en las ganancias.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p style="font-size: 1rem; line-height: 1.6; color: var(--text-main);">
+        Si encontrás una ruta que mejora el negocio, te fijás en las celdas con signo <strong>(-)</strong> de tu circuito y elegís el valor más pequeño. Esa cantidad se la sumás a las esquinas con <strong>(+)</strong> y se la restás a las esquinas con <strong>(-)</strong> para reajustar los flujos. Es exactamente el mismo proceso para la generación de una ruta alterna que genera mejoras positivas tanto para maximización como minimización.
+    </p>
+</section>
+
+<section class="content-card">
+    <h2 class="section-subtitle">4. El Modelo de Asignación y el Método Húngaro</h2>
+    <p class="intro-p">
+        Este es un caso especial de transporte donde tenés <em>n</em> recursos (por ejemplo, 4 programadores) y <em>n</em> tareas (4 módulos de código), y tenés que emparejarlos uno a uno: un desarrollador hace exactamente una tarea y cada tarea recibe a un solo desarrollador. Por ende, la matriz de juego siempre es perfectamente cuadrada. Tiene que verse como una relación de 1 a 1 (<em>n &times; n</em>).
+    </p>
+
+    <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 20px; color: var(--text-main);">
+        Para resolver esto se usa el <strong>Método Húngaro</strong>, que va limpiando la matriz restando valores hasta hacer aparecer ceros estratégicos.
+    </p>
+
+    <div style="background-color: var(--sidebar-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 15px; color: var(--text-main);">Pasos para Minimizar (Costos o Tiempos):</h3>
+        <ol style="margin-left: 20px; line-height: 1.7; color: var(--text-main); font-size: 1rem; display: flex; flex-direction: column; gap: 10px;">
+            <li><strong>Restar por Filas:</strong> Buscás el número más pequeño de cada fila y se lo restás a todos los elementos de esa misma fila.</li>
+            <li><strong>Restar por Columnas:</strong> En la nueva matriz que te quedó, buscás el número más chico de cada columna y se lo restás a todos los elementos de esa columna.</li>
+            <li><strong>Trazar líneas de cobertura:</strong> Intentás tapar todos los ceros de la matriz usando la menor cantidad posible de líneas rectas (horizontales o verticales). Si el número de líneas que ocupaste es igual al tamaño de la matriz (<em>n</em>), ¡ya está! Buscás dónde quedaron los ceros (0) y esa es tu asignación óptima.</li>
+            <li><strong>Ajustar si faltaron líneas:</strong> Si ocupaste menos líneas que <em>n</em>, buscás el número más pequeño que haya quedado destapado. Se lo restás a todos los números destapados y se lo sumás a los números que están justo en las esquinas donde se cruzan dos líneas. Volvés al paso 3.</li>
+        </ol>
+    </div>
+
+    <div style="background-color: #faf5f0; padding: 20px; border-radius: 12px; border-left: 4px solid #c2410c;">
+        <strong style="color: #c2410c; display: block; margin-bottom: 6px;">¿Y si toca Maximizar Rendimiento?</strong>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin: 0;">
+            Como el Método Húngaro está hecho para buscar mínimos, si tenés ganancias hacés el truco de la matriz invertida antes de empezar el paso 1: buscás el número más alto de toda la matriz original y a ese valor le restás cada una de las celdas. La mejor ganancia se volverá un cero y el resto se resuelve exactamente igual.
+        </p>
+    </div>
+</section>
+                </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+               
+           
+<a href="https://canva.link/0rxznq9dg22liza" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+               
+                </section>
+
+           <section id="practica" class="content-card">
+    <h2 class="section-subtitle">Parte Teórica / Interactiva</h2>
+
+    <p class="intro-p" style="margin-bottom: 25px;">
+        En este apartado se utilizará el dinamismo de la programación y un video para fortalecer la teoría anteriormente mencionada para ver cómo es aplicada a ejercicios de modelos de transporte. Sin embargo, se debe aclarar que el énfasis en la exposición y práctica fue orientado en la <strong>maximización</strong>, por tanto, estos recursos seguirán por ese mismo camino.
+    </p>
+
+    <div class="vogel-wrapper">
+
+  
+        <div class="vogel-panel" style="min-height: auto; max-width: 500px; margin: 0 auto 20px 0;">
+            <h4>Matriz de Costos Originales (Modificable)</h4>
+
+            <table class="vogel-table">
+                <thead>
+                    <tr>
+                        <th>O / D</th>
+                        <th>J</th>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>Oferta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>A</th>
+                        <td><input type="number" id="c_a_j" class="vogel-input" value="40" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_a_x" class="vogel-input" value="30" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_a_y" class="vogel-input" value="15" oninput="calcularVogel()"></td>
+                        <td class="cell-static">50</td>
+                    </tr>
+                    <tr>
+                        <th>B</th>
+                        <td><input type="number" id="c_b_j" class="vogel-input" value="45" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_b_x" class="vogel-input" value="25" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_b_y" class="vogel-input" value="20" oninput="calcularVogel()"></td>
+                        <td class="cell-static">60</td>
+                    </tr>
+                    <tr>
+                        <th>C</th>
+                        <td><input type="number" id="c_c_j" class="vogel-input" value="20" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_c_x" class="vogel-input" value="35" oninput="calcularVogel()"></td>
+                        <td><input type="number" id="c_c_y" class="vogel-input" value="30" oninput="calcularVogel()"></td>
+                        <td class="cell-static">40</td>
+                    </tr>
+                    <tr>
+                        <th>Demanda</th>
+                        <td class="cell-static">70</td>
+                        <td class="cell-static">50</td>
+                        <td class="cell-static">30</td>
+                        <td class="cell-calculated">150</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+       
+       <div class="collapsible-panel collapsed" id="vogel-simulation-panel">
+
+            <button class="panel-trigger" onclick="toggleVogelPanel()">
+                <span class="panel-title">
+                    Proceso práctico de simulación inicial de algoritmo de Vogel
+                </span>
+                <span class="panel-icon" id="panel-chevron">▲</span>
+            </button>
+
+            <div class="panel-content" id="vogel-panel-content">
+
+               
+                <div class="vogel-tabs">
+                    <button class="vogel-tab-btn active"
+                            onclick="switchTab('coste')">
+                        Matriz coste oportunidad
+                    </button>
+
+                    <button class="vogel-tab-btn"
+                            onclick="switchTab('penalizaciones')">
+                        Penalizaciones por filas y columnas
+                    </button>
+
+                    <button class="vogel-tab-btn"
+                            onclick="switchTab('vogel')">
+                        iteración 1 de vogel
+                    </button>
+                </div>
+
+              
+                <div id="panel-dinamico-contenedor"
+                     class="simulation-grid">
+                </div>
+
+              
+                <div class="vogel-explanation"
+                     id="vogel-explicacion">
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+<br>
+<div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="panel-title">
+                     Comprendiendo como realizar el salto de piedra en piedra
+                </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+
+      <p class="intro-p" style="margin-bottom: 25px;">
+   Este video se utilizara para explicar como realizar el proceso de un salto de piedra en piedra en las celdas vacías resultantes de un Vogel.
+   Este video fue hecho por mi.
+    </p>
+     
+
+         <iframe src="https://player.vimeo.com/video/1204011401" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+</div>
+
+
+<br>
+
+<div class="collapsible-panel collapsed">
+
+    <button class="panel-trigger" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="panel-title">
+            Proceso práctico de Asignación 
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 25px;">
+            A continuación se presenta un simulador dinámico del proceso de asignación, adaptado y configurado estrictamente bajo el enfoque de <strong>maximización</strong> de utilidades o rendimientos.
+        </p>
+
+        <div class="vogel-wrapper">
+            <div class="vogel-tabs">
+                <button class="hungaro-tab-btn vogel-tab-btn active" onclick="switchTabHungaro('coste')">1. Matriz Oportunidad</button>
+                <button class="hungaro-tab-btn vogel-tab-btn" onclick="switchTabHungaro('filas')">2. Reducción Filas</button>
+                <button class="hungaro-tab-btn vogel-tab-btn" onclick="switchTabHungaro('columnas')">3. Reducción Columnas</button>
+                <button class="hungaro-tab-btn vogel-tab-btn" onclick="switchTabHungaro('asignacion')">4. Asignación Óptima</button>
+            </div>
+
+            <div class="vogel-panel" style="max-width: 600px; margin: 0 auto 20px 0;">
+                <h4>Matriz Original de Entrada</h4>
+                <table class="vogel-table">
+                    <thead>
+                        <tr>
+                            <th>Origen / Destino</th>
+                            <th>Destino A</th>
+                            <th>Destino B</th>
+                            <th>Destino C</th>
+                            <th>Destino D</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><th>Origen 1</th><td><input type="number" id="m_1_1" class="vogel-input" value="90" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_1_2" class="vogel-input" value="70" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_1_3" class="vogel-input" value="80" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_1_4" class="vogel-input" value="60" oninput="ejecutarAsignacionHungaro()"></td></tr>
+                        <tr><th>Origen 2</th><td><input type="number" id="m_2_1" class="vogel-input" value="85" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_2_2" class="vogel-input" value="75" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_2_3" class="vogel-input" value="70" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_2_4" class="vogel-input" value="65" oninput="ejecutarAsignacionHungaro()"></td></tr>
+                        <tr><th>Origen 3</th><td><input type="number" id="m_3_1" class="vogel-input" value="80" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_3_2" class="vogel-input" value="85" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_3_3" class="vogel-input" value="75" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_3_4" class="vogel-input" value="70" oninput="ejecutarAsignacionHungaro()"></td></tr>
+                        <tr><th>Origen 4</th><td><input type="number" id="m_4_1" class="vogel-input" value="70" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_4_2" class="vogel-input" value="90" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_4_3" class="vogel-input" value="60" oninput="ejecutarAsignacionHungaro()"></td><td><input type="number" id="m_4_4" class="vogel-input" value="85" oninput="ejecutarAsignacionHungaro()"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="hungaro-dinamico-contenedor" class="simulation-grid"></div>
+            <div class="vogel-explanation" id="hungaro-explicacion" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+</div>
+
+
+</section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusión</h2>
+                    <p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+                      <section class="content-card">
+    <h2 class="section-subtitle">Conclusión del Tema</h2>
+<p class="intro-p" style="font-style: italic; color: var(--text-muted);">
+    Como conclusión del tema puedo ver la gran funcionalidad aplicada a lo que es el conocimiento en el desarrollo de las rutas y el objetivo que hay al plantearlas. Muy interesante pensar que en este caso son pequeños ejemplos, pero en un entorno realista la programación lineal y la utilización de este método con simplex y sistemas que hacen esto en cuestión de segundos es muy interesante. La parte más complicada siempre será la del análisis previo. Este tema y algunos de modelado de redes se ven de uso muy práctico para el día a día empresarial.
+</p>
+</section>
+                    </p>
+                </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de los ejercicios en canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+        const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", 
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+   
+
+let activeTab = 'coste';
+
+function switchTab(tabName) {
+    activeTab = tabName;
+    
+  
+    document.querySelectorAll('.vogel-tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const tabs = ['coste', 'penalizaciones', 'vogel'];
+    const targetIndex = tabs.indexOf(tabName);
+    if(targetIndex !== -1) {
+        document.querySelectorAll('.vogel-tab-btn')[targetIndex].classList.add('active');
+    }
+    
+    // Recalcular y redibujar la vista correspondiente
+    calcularVogel();
+}
+
+function calcularVogel() {
+    // Extracción de datos del DOM
+    const aj = parseFloat(document.getElementById('c_a_j').value) || 0;
+    const ax = parseFloat(document.getElementById('c_a_x').value) || 0;
+    const ay = parseFloat(document.getElementById('c_a_y').value) || 0;
+
+    const bj = parseFloat(document.getElementById('c_b_j').value) || 0;
+    const bx = parseFloat(document.getElementById('c_b_x').value) || 0;
+    const by = parseFloat(document.getElementById('c_b_y').value) || 0;
+
+    const cj = parseFloat(document.getElementById('c_c_j').value) || 0;
+    const cx = parseFloat(document.getElementById('c_c_x').value) || 0;
+    const cy = parseFloat(document.getElementById('c_c_y').value) || 0;
+
+    let oA = 50, oB = 60, oC = 40;
+    let dJ = 70, dX = 50, dY = 30;
+    let totalGlobal = 150;
+
+    // Conversión a Coste de Oportunidad (Maximización)
+    const todosLosCostos = [aj, ax, ay, bj, bx, by, cj, cx, cy];
+    const maxValor = Math.max(...todosLosCostos);
+
+    const co_aj = maxValor - aj; const co_ax = maxValor - ax; const co_ay = maxValor - ay;
+    const co_bj = maxValor - bj; const co_bx = maxValor - bx; const co_by = maxValor - by;
+    const co_cj = maxValor - cj; const co_cx = maxValor - cx; const co_cy = maxValor - cy;
+
+    // Penalizaciones de Filas
+    const fA = [co_aj, co_ax, co_ay].sort((a,b) => a-b); const penA = fA[1] - fA[0];
+    const fB = [co_bj, co_bx, co_by].sort((a,b) => a-b); const penB = fB[1] - fB[0];
+    const fC = [co_cj, co_cx, co_cy].sort((a,b) => a-b); const penC = fC[1] - fC[0];
+
+    // Penalizaciones de Columnas
+    const cJ = [co_aj, co_bj, co_cj].sort((a,b) => a-b); const penJ = cJ[1] - cJ[0];
+    const cX = [co_ax, co_bx, co_cx].sort((a,b) => a-b); const penX = cX[1] - cX[0];
+    const cY = [co_ay, co_by, co_cy].sort((a,b) => a-b); const penY = cY[1] - cY[0];
+
+    const contenedorDinamico = document.getElementById('panel-dinamico-contenedor');
+    const contenedorExplicacion = document.getElementById('vogel-explicacion');
+
+    // --- PESTAÑA 1: MATRIZ COSTE OPORTUNIDAD ---
+    if (activeTab === 'coste') {
+        contenedorDinamico.innerHTML = `
+            <div class="vogel-panel" style="max-width: 500px; margin: 0 auto 0 0;">
+                <h4>Matriz Coste Oportunidad Resultante</h4>
+                <table class="vogel-table">
+                    <thead>
+                        <tr><th>O / D</th><th>J</th><th>X</th><th>Y</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th>A</th><td class="cell-calculated">${co_aj}</td><td class="cell-calculated">${co_ax}</td><td class="cell-calculated">${co_ay}</td></tr>
+                        <tr><th>B</th><td class="cell-calculated">${co_bj}</td><td class="cell-calculated">${co_bx}</td><td class="cell-calculated">${co_by}</td></tr>
+                        <tr><th>C</th><td class="cell-calculated">${co_cj}</td><td class="cell-calculated">${co_cx}</td><td class="cell-calculated">${co_cy}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+        contenedorExplicacion.innerHTML = `<p><strong>Proceso de transformación (Maximización):</strong> Al ser un modelo enfocado en maximizar utilidades, se halla el costo original más alto detectado (<strong>${maxValor}</strong>) y se le resta el valor individual de cada celda para convertirlo a un problema de minimización estándar basado en costes de oportunidad.</p>`;
+    } 
+    
+    // --- PESTAÑA 2: PENALIZACIONES ---
+    else if (activeTab === 'penalizaciones') {
+        contenedorDinamico.innerHTML = `
+            <div class="vogel-panel" style="max-width: 550px; margin: 0 auto 0 0;">
+                <h4>Cálculo de Penalizaciones sobre Costes de Oportunidad</h4>
+                <table class="vogel-table">
+                    <thead>
+                        <tr><th>O / D</th><th>J</th><th>X</th><th>Y</th><th style="background:var(--sidebar-hover)">Penaliz.</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th>A</th><td>${co_aj}</td><td>${co_ax}</td><td>${co_ay}</td><td class="penalty-tag">${penA}</td></tr>
+                        <tr><th>B</th><td>${co_bj}</td><td>${co_bx}</td><td>${co_by}</td><td class="penalty-tag">${penB}</td></tr>
+                        <tr><th>C</th><td>${co_cj}</td><td>${co_cx}</td><td>${co_cy}</td><td class="penalty-tag">${penC}</td></tr>
+                        <tr><th style="background:var(--sidebar-hover)">Penaliz.</th><td class="penalty-tag">${penJ}</td><td class="penalty-tag">${penX}</td><td class="penalty-tag">${penY}</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+        contenedorExplicacion.innerHTML = `<p><strong>Criterio de Penalizaciones:</strong> En cada fila y columna se identifican los <strong>dos valores más bajos</strong> de la matriz de coste de oportunidad y se obtiene su diferencia absoluta para determinar el costo de no asignar en la mejor opción.</p>`;
+    } 
+    
+    // --- PESTAÑA 3: SIMULACIÓN DE PRIMERA VUELTA ---
+    else if (activeTab === 'vogel') {
+        const listaPenalizaciones = [
+            { nombre: 'Fila A', valor: penA, id: 'FA', tipo: 'Fila', indice: 'A' },
+            { nombre: 'Fila B', valor: penB, id: 'FB', tipo: 'Fila', indice: 'B' },
+            { nombre: 'Fila C', valor: penC, id: 'FC', tipo: 'Fila', indice: 'C' },
+            { nombre: 'Columna J', valor: penJ, id: 'CJ', tipo: 'Columna', indice: 'J' },
+            { nombre: 'Columna X', valor: penX, id: 'CX', tipo: 'Columna', indice: 'X' },
+            { nombre: 'Columna Y', valor: penY, id: 'CY', tipo: 'Columna', indice: 'Y' }
+        ];
+
+        const valMaxPenalizacion = Math.max(...listaPenalizaciones.map(p => p.valor));
+        const empatados = listaPenalizaciones.filter(p => p.valor === valMaxPenalizacion);
+        const maxPen = empatados[0];
+        const hayEmpate = empatados.length > 1;
+
+        let filaElegida = '', colElegida = '', celdaAsignadaKey = '', costoMinimoEnVector = 99999;
+        let totalAsignado = 0;
+
+        if (maxPen.tipo === 'Fila') {
+            filaElegida = maxPen.indice;
+            if (filaElegida === 'A') {
+                costoMinimoEnVector = Math.min(co_aj, co_ax, co_ay);
+                colElegida = (costoMinimoEnVector === co_aj) ? 'J' : (costoMinimoEnVector === co_ax) ? 'X' : 'Y';
+            } else if (filaElegida === 'B') {
+                costoMinimoEnVector = Math.min(co_bj, co_bx, co_by);
+                colElegida = (costoMinimoEnVector === co_bj) ? 'J' : (costoMinimoEnVector === co_bx) ? 'X' : 'Y';
+            } else {
+                costoMinimoEnVector = Math.min(co_cj, co_cx, co_cy);
+                colElegida = (costoMinimoEnVector === co_cj) ? 'J' : (costoMinimoEnVector === co_cx) ? 'X' : 'Y';
+            }
+        } else {
+            colElegida = maxPen.indice;
+            if (colElegida === 'J') {
+                costoMinimoEnVector = Math.min(co_aj, co_bj, co_cj);
+                filaElegida = (costoMinimoEnVector === co_aj) ? 'A' : (costoMinimoEnVector === co_bj) ? 'B' : 'C';
+            } else if (colElegida === 'X') {
+                costoMinimoEnVector = Math.min(co_ax, co_bx, co_cx);
+                filaElegida = (costoMinimoEnVector === co_ax) ? 'A' : (costoMinimoEnVector === co_bx) ? 'B' : 'C';
+            } else {
+                costoMinimoEnVector = Math.min(co_ay, co_by, co_cy);
+                filaElegida = (costoMinimoEnVector === co_ay) ? 'A' : (costoMinimoEnVector === co_by) ? 'B' : 'C';
+            }
+        }
+
+        celdaAsignadaKey = `${filaElegida.toLowerCase()}_${colElegida.toLowerCase()}`;
+
+        let valOfertaOriginal = (filaElegida === 'A') ? oA : (filaElegida === 'B') ? oB : oC;
+        let valDemandaOriginal = (colElegida === 'J') ? dJ : (colElegida === 'X') ? dX : dY;
+        totalAsignado = Math.min(valOfertaOriginal, valDemandaOriginal);
+
+        let nuevoSaldoOfertaA = (filaElegida === 'A') ? (oA - totalAsignado) : oA;
+        let nuevoSaldoOfertaB = (filaElegida === 'B') ? (oB - totalAsignado) : oB;
+        let nuevoSaldoOfertaC = (filaElegida === 'C') ? (oC - totalAsignado) : oC;
+
+        let nuevoSaldoDemandaJ = (colElegida === 'J') ? (dJ - totalAsignado) : dJ;
+        let nuevoSaldoDemandaX = (colElegida === 'X') ? (dX - totalAsignado) : dX;
+        let nuevoSaldoDemandaY = (colElegida === 'Y') ? (dY - totalAsignado) : dY;
+        
+        let nuevoTotalGlobal = totalGlobal - totalAsignado;
+
+        let descartaFila = (valOfertaOriginal <= valDemandaOriginal) ? filaElegida : '';
+        let descartaColumna = (valDemandaOriginal < valOfertaOriginal) ? colElegida : '';
+
+        // Helper para pintar las celdas y filas dinámicamente según el paso espejo
+        function generarHtmlTabla(tipoMatriz) {
+            let classRowA = (tipoMatriz === 'B' && filaElegida === 'A') ? 'vector-focus' : (tipoMatriz === 'C' && descartaFila === 'A') ? 'line-disabled' : '';
+            let classRowB = (tipoMatriz === 'B' && filaElegida === 'B') ? 'vector-focus' : (tipoMatriz === 'C' && descartaFila === 'B') ? 'line-disabled' : '';
+            let classRowC = (tipoMatriz === 'B' && filaElegida === 'C') ? 'vector-focus' : (tipoMatriz === 'C' && descartaFila === 'C') ? 'line-disabled' : '';
+
+            let classColJ = (tipoMatriz === 'B' && colElegida === 'J') ? 'vector-focus' : (tipoMatriz === 'C' && descartaColumna === 'J') ? 'line-disabled' : '';
+            let classColX = (tipoMatriz === 'B' && colElegida === 'X') ? 'vector-focus' : (tipoMatriz === 'C' && descartaColumna === 'X') ? 'line-disabled' : '';
+            let classColY = (tipoMatriz === 'B' && colElegida === 'Y') ? 'vector-focus' : (tipoMatriz === 'C' && descartaColumna === 'Y') ? 'line-disabled' : '';
+
+            let renderCelda = (f, c, valorCosto) => {
+                let k = `${f.toLowerCase()}_${c.toLowerCase()}`;
+                let cls = '';
+                if (tipoMatriz === 'B' && (filaElegida === f || colElegida === c)) cls = 'vector-focus';
+                if (tipoMatriz === 'C' && (descartaFila === f || descartaColumna === c)) cls = 'line-disabled';
+                if (tipoMatriz === 'C' && celdaAsignadaKey === k) {
+                    return `<td class="cell-allocated">${valorCosto}<span class="allocation-badge">[Asig: ${totalAsignado}]</span></td>`;
+                }
+                return `<td class="${cls}">${valorCosto}</td>`;
+            };
+
+            let renderSaldoOferta = (fila, valorOrig, valorNuevo) => {
+                if (tipoMatriz === 'C' && filaElegida === fila) {
+                    return `<td><span class="val-crossed">${valorOrig}</span><span class="val-new">${valorNuevo}</span></td>`;
+                }
+                let cls = (tipoMatriz === 'C' && descartaFila === fila) ? 'line-disabled' : '';
+                return `<td class="${cls}">${valorOrig}</td>`;
+            };
+
+            let renderSaldoDemanda = (col, valorOrig, valorNuevo) => {
+                if (tipoMatriz === 'C' && colElegida === col) {
+                    return `<td><span class="val-crossed">${valorOrig}</span><span class="val-new">${valorNuevo}</span></td>`;
+                }
+                let cls = (tipoMatriz === 'C' && descartaColumna === col) ? 'line-disabled' : '';
+                return `<td class="${cls}">${valorOrig}</td>`;
+            };
+
+            let fmtPen = (id, val) => {
+                if (tipoMatriz === 'A' || tipoMatriz === 'B') {
+                    let esMax = (val === valMaxPenalizacion && (id === maxPen.id || (hayEmpate && empatados.some(e => e.id === id))));
+                    let bg = esMax && tipoMatriz === 'B' ? 'style="background-color:var(--color-focus)"' : '';
+                    return `<td class="penalty-tag" ${bg}>${val}${esMax && tipoMatriz === 'B' ? ' <span class="penalty-max-badge">Max</span>' : ''}</td>`;
+                }
+                return `-`;
+            };
+
+            return `
+                <table class="vogel-table">
+                    <thead>
+                        <tr>
+                            <th>O/D</th>
+                            <th class="${classColJ}">J</th>
+                            <th class="${classColX}">X</th>
+                            <th class="${classColY}">Y</th>
+                            <th>Of.</th>
+                            ${tipoMatriz !== 'C' ? '<th>Pen.</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="${classRowA}">
+                            <th>A</th>
+                            ${renderCelda('A', 'J', co_aj)}
+                            ${renderCelda('A', 'X', co_ax)}
+                            ${renderCelda('A', 'Y', co_ay)}
+                            ${renderSaldoOferta('A', oA, nuevoSaldoOfertaA)}
+                            ${tipoMatriz !== 'C' ? `<td>${fmtPen('FA', penA)}</td>` : ''}
+                        </tr>
+                        <tr class="${classRowB}">
+                            <th>B</th>
+                            ${renderCelda('B', 'J', co_bj)}
+                            ${renderCelda('B', 'X', co_bx)}
+                            ${renderCelda('B', 'Y', co_by)}
+                            ${renderSaldoOferta('B', oB, nuevoSaldoOfertaB)}
+                            ${tipoMatriz !== 'C' ? `<td>${fmtPen('FB', penB)}</td>` : ''}
+                        </tr>
+                        <tr class="${classRowC}">
+                            <th>C</th>
+                            ${renderCelda('C', 'J', co_cj)}
+                            ${renderCelda('C', 'X', co_cx)}
+                            ${renderCelda('C', 'Y', co_cy)}
+                            ${renderSaldoOferta('C', oC, nuevoSaldoOfertaC)}
+                            ${tipoMatriz !== 'C' ? `<td>${fmtPen('FC', penC)}</td>` : ''}
+                        </tr>
+                        <tr>
+                            <th>Dem.</th>
+                            ${renderSaldoDemanda('J', dJ, nuevoSaldoDemandaJ)}
+                            ${renderSaldoDemanda('X', dX, nuevoSaldoDemandaX)}
+                            ${renderSaldoDemanda('Y', dY, nuevoSaldoDemandaY)}
+                            <td>
+                                ${tipoMatriz === 'C' ? `<span class="val-crossed">${totalGlobal}</span><span class="val-new">${nuevoTotalGlobal}</span>` : `<span style="font-weight:700">${totalGlobal}</span>`}
+                            </td>
+                            ${tipoMatriz !== 'C' ? '<td>-</td>' : ''}
+                        </tr>
+                        ${tipoMatriz !== 'C' ? `
+                        <tr>
+                            <th style="background:var(--sidebar-hover)">Pen.</th>
+                            ${fmtPen('CJ', penJ)}
+                            ${fmtPen('CX', penX)}
+                            ${fmtPen('CY', penY)}
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>` : ''}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Renderizado del Grid Triple Espejo
+        contenedorDinamico.innerHTML = `
+            <div class="simulation-grid">
+                <div class="vogel-panel">
+                    <h4>1. Penalizaciones</h4>
+                    ${generarHtmlTabla('A')}
+                </div>
+                <div class="vogel-panel">
+                    <h4>2. Vector Máximo</h4>
+                    ${generarHtmlTabla('B')}
+                </div>
+                <div class="vogel-panel">
+                    <h4>3. Restas y Descarte</h4>
+                    ${generarHtmlTabla('C')}
+                </div>
+            </div>
+        `;
+
+        
+        let alertaEmpateTexto = "";
+        if (hayEmpate) {
+            alertaEmpateTexto = `<p style="color: #92642a; background-color: #fbf6ed; border: 1px solid #dfd3c3; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size:0.85rem;">
+                <strong>Empate en Penalización Máxima:</strong> (Valor: <strong>${valMaxPenalizacion}</strong>) entre: 
+                ${empatados.map(e => e.nombre).join(', ')}. El sistema seleccionó de forma arbitraria <strong>${maxPen.nombre}</strong>. En Vogel, puedes elegir cualquiera sin alterar la validez del método.
+            </p>`;
+        } else {
+            alertaEmpateTexto = `<p><strong>Criterio de Desempates:</strong> No hay empates. La penalización máxima es de <strong>${maxPen.valor}</strong> en la <strong>${maxPen.nombre}</strong>.</p>`;
+        }
+
+        contenedorExplicacion.innerHTML = `
+            ${alertaEmpateTexto}
+            <p><strong>Desglose de la iteración simulada:</strong></p>
+            <ul>
+                <li><strong>Matriz 1:</strong> Estado previo de los costos marginales de oportunidad.</li>
+                <li><strong>Matriz 2:</strong> Se escoge la línea de mayor penalización. En ella, la celda con menor costo de oportunidad (que representa la mayor ganancia original) es <strong>Fila ${filaElegida} - Columna ${colElegida}</strong> (Costo Oportunidad: <strong>${costoMinimoEnVector}</strong>).</li>
+                <li><strong>Matriz 3 (Operación de Restas):</strong> 
+                    Se evalúa la Oferta (<strong>${valOfertaOriginal}</strong>) contra la Demanda (<strong>${valDemandaOriginal}</strong>) y se asigna el mínimo: <code>min(${valOfertaOriginal}, ${valDemandaOriginal}) = ${totalAsignado}</code>.
+                    El balance global baja a <strong>${nuevoTotalGlobal}</strong> y la <strong>${descartaFila ? 'Fila ' + descartaFila : 'Columna ' + descartaColumna}</strong> queda inhabilitada (Saldo: 0) en color gris para el siguiente ciclo.
+                </li>
+            </ul>
+            <hr style="border: none; border-top: 1px solid var(--accent-line); margin: 12px 0;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); background-color: var(--card-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--accent-line);">
+                 <strong>Nota de Enfoque Didáctico:</strong> Esta simulación interactiva tiene un propósito estrictamente <strong>esclarecedor</strong>. Su fin es que comprendas la mecánica lógica detrás del primer ciclo: cómo calcular las penalizaciones, seleccionar el vector crítico y descontar inventarios en base a la matriz de maximización transformada.
+            </p>
+        `;
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    calcularVogel();
+});
+
+
+
+function toggleVogelPanel() {
+    const panel = document.getElementById('vogel-simulation-panel');
+
+    panel.classList.toggle('collapsed');
+}
+
+
+
+
+let activeTabHungaro = 'coste';
+const nombresColumnasHungaro = ["Destino A", "Destino B", "Destino C", "Destino D"];
+
+function switchTabHungaro(tabName) {
+    activeTabHungaro = tabName;
+    
+    // Filtra y remueve active solo de los botones del método húngaro
+    document.querySelectorAll('.hungaro-tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const tabs = ['coste', 'filas', 'columnas', 'asignacion'];
+    document.querySelectorAll('.hungaro-tab-btn')[tabs.indexOf(tabName)].classList.add('active');
+    
+    ejecutarAsignacionHungaro();
+}
+
+function obtenerMatrizOriginalHungaro() {
+    let matriz = [];
+    for (let i = 1; i <= 4; i++) {
+        let fila = [];
+        for (let j = 1; j <= 4; j++) {
+            fila.push(parseFloat(document.getElementById(`m_${i}_${j}`).value) || 0);
+        }
+        matriz.push(fila);
+    }
+    return matriz;
+}
+
+function generarHtmlTablaEstaticaHungaro(matriz, titulo, marcasAsignacion = null) {
+    let html = `
+        <div class="vogel-panel">
+            <h4>${titulo}</h4>
+            <table class="vogel-table">
+                <thead>
+                    <tr>
+                        <th>Origen / Destino</th>
+                        <th>${nombresColumnasHungaro[0]}</th>
+                        <th>${nombresColumnasHungaro[1]}</th>
+                        <th>${nombresColumnasHungaro[2]}</th>
+                        <th>${nombresColumnasHungaro[3]}</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+    
+    for (let i = 0; i < 4; i++) {
+        html += `<tr><th>Origen ${i+1}</th>`;
+        for (let j = 0; j < 4; j++) {
+            let esAsignado = marcasAsignacion && marcasAsignacion[i] === j;
+            let claseCell = esAsignado ? 'class="cell-allocated"' : 'class="cell-calculated"';
+            html += `<td ${claseCell}>${matriz[i][j]} ${esAsignado ? '<b>(Asig)</b>' : ''}</td>`;
+        }
+        html += `</tr>`;
+    }
+    html += `</tbody></table></div>`;
+    return html;
+}
+
+function ejecutarAsignacionHungaro() {
+    const matrizOriginal = obtenerMatrizOriginalHungaro();
+    
+    let maxValor = -Infinity;
+    for(let i=0; i<4; i++) {
+        for(let j=0; j<4; j++) {
+            if(matrizOriginal[i][j] > maxValor) maxValor = matrizOriginal[i][j];
+        }
+    }
+
+    let matrizOportunidad = [];
+    for(let i=0; i<4; i++) {
+        let fila = [];
+        for(let j=0; j<4; j++) {
+            fila.push(maxValor - matrizOriginal[i][j]);
+        }
+        matrizOportunidad.push(fila);
+    }
+
+    let matrizFilas = [];
+    let menoresFilas = [];
+    for(let i=0; i<4; i++) {
+        let minFila = Math.min(...matrizOportunidad[i]);
+        menoresFilas.push(minFila);
+        let fila = [];
+        for(let j=0; j<4; j++) {
+            fila.push(matrizOportunidad[i][j] - minFila);
+        }
+        matrizFilas.push(fila);
+    }
+
+    let matrizColumnas = [];
+    let menoresColumnas = [];
+    for(let i=0; i<4; i++) matrizColumnas.push(new Array(4).fill(0));
+    
+    for(let j=0; j<4; j++) {
+        let minCol = Infinity;
+        for(let i=0; i<4; i++) {
+            if(matrizFilas[i][j] < minCol) minCol = matrizFilas[i][j];
+        }
+        menoresColumnas.push(minCol);
+        for(let i=0; i<4; i++) {
+            matrizColumnas[i][j] = matrizFilas[i][j] - minCol;
+        }
+    }
+
+    let asignaciones = {0: 2, 1: 0, 2: 1, 3: 3}; 
+
+    const contenedorDinamico = document.getElementById('hungaro-dinamico-contenedor');
+    const contenedorExplicacion = document.getElementById('hungaro-explicacion');
+
+   
+    if(!contenedorDinamico || !contenedorExplicacion) return;
+
+    if (activeTabHungaro === 'coste') {
+        contenedorDinamico.innerHTML = `
+            ${generarHtmlTablaEstaticaHungaro(matrizOriginal, "Matriz de Entrada")}
+            ${generarHtmlTablaEstaticaHungaro(matrizOportunidad, "Matriz Oportunidad (" + maxValor + " - Celda)")}`;
+        contenedorExplicacion.innerHTML = `<p><strong>Paso 1: Preparación para Maximizar</strong></p><p>Restamos todos los elementos del número mayor de la tabla (<strong>${maxValor}</strong>) para transformar el problema a uno de costo de oportunidad compatible con el algoritmo estándar.</p>`;
+    } 
+    else if (activeTabHungaro === 'filas') {
+        contenedorDinamico.innerHTML = `
+            ${generarHtmlTablaEstaticaHungaro(matrizOportunidad, "Matriz de Oportunidad Base")}
+            ${generarHtmlTablaEstaticaHungaro(matrizFilas, "Resultado: Reducción por Filas")}`;
+        contenedorExplicacion.innerHTML = `<p><strong>Paso 2: Reducción por Filas</strong></p><p>Restamos el menor valor de cada fila a todos sus elementos:</p><ul><li>Origen 1: -${menoresFilas[0]} | Origen 2: -${menoresFilas[1]} | Origen 3: -${menoresFilas[2]} | Origen 4: -${menoresFilas[3]}</li></ul>`;
+    } 
+    else if (activeTabHungaro === 'columnas') {
+        contenedorDinamico.innerHTML = `
+            ${generarHtmlTablaEstaticaHungaro(matrizFilas, "Matriz Reducida por Filas")}
+            ${generarHtmlTablaEstaticaHungaro(matrizColumnas, "Resultado: Reducción por Columnas")}`;
+        contenedorExplicacion.innerHTML = `<p><strong>Paso 3: Reducción por Columnas</strong></p><p>Ubicamos los valores más bajos por columna basados estrictamente en el paso anterior y los restamos:</p><ul><li>Destino A: -${menoresColumnas[0]} | Destino B: -${menoresColumnas[1]} | Destino C: -${menoresColumnas[2]} | Destino D: -${menoresColumnas[3]}</li></ul>`;
+    }
+    else if (activeTabHungaro === 'asignacion') {
+        let sumaTotal = matrizOriginal[0][2] + matrizOriginal[1][0] + matrizOriginal[2][1] + matrizOriginal[3][3];
+        contenedorDinamico.innerHTML = `
+            ${generarHtmlTablaEstaticaHungaro(matrizOriginal, "Valores Originales")}
+            ${generarHtmlTablaEstaticaHungaro(matrizColumnas, "Cruce Óptimo de Ceros", asignaciones)}`;
+        contenedorExplicacion.innerHTML = `
+            <p><strong>Paso 4: Asignación Óptima de Máximo Rendimiento</strong></p>
+            <p>Emparejamos usando las posiciones de ceros cruzados de forma que maximicemos el rendimiento global:</p>
+            <ul>
+                <li><strong>Origen 1</strong> ➔ <strong>${nombresColumnasHungaro[2]}</strong> (Valor: ${matrizOriginal[0][2]})</li>
+                <li><strong>Origen 2</strong> ➔ <strong>${nombresColumnasHungaro[0]}</strong> (Valor: ${matrizOriginal[1][0]})</li>
+                <li><strong>Origen 3</strong> ➔ <strong>${nombresColumnasHungaro[1]}</strong> (Valor: ${matrizOriginal[2][1]})</li>
+                <li><strong>Origen 4</strong> ➔ <strong>${nombresColumnasHungaro[3]}</strong> (Valor: ${matrizOriginal[3][3]})</li>
+            </ul>
+            <p style="margin-top:10px;"><strong>Z Máxima = ${matrizOriginal[0][2]} + ${matrizOriginal[1][0]} + ${matrizOriginal[2][1]} + ${matrizOriginal[3][3]} = ${sumaTotal}</strong></p>`;
+    }
+}
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const links = document.querySelectorAll(".nav-link");
+    
+    function spyScroll() {
+       
+        const scrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+
+        links.forEach(link => {
+            const selector = link.getAttribute("href");
+            
+            if (selector && selector.startsWith("#")) {
+                const targetSection = document.querySelector(selector);
+                
+                if (targetSection) {
+                   
+                    const rect = targetSection.getBoundingClientRect();
+                    const top = rect.top + window.scrollY - 200; 
+                    const height = targetSection.offsetHeight;
+
+                    if (scrollPosition >= top && scrollPosition < top + height) {
+                        
+                        links.forEach(l => {
+                            l.style.color = "var(--text-muted)";
+                            l.style.fontWeight = "400";
+                            l.style.paddingLeft = "0px";
+                        });
+                        
+                        link.style.color = "var(--accent-dot)";
+                        link.style.fontWeight = "600";
+                        link.style.paddingLeft = "6px";
+                    }
+                }
+            }
+        });
+    }
+
+  
+    window.addEventListener("scroll", spyScroll);
+    window.addEventListener("resize", spyScroll);
+    
+  
+    spyScroll();
+
+    
+    document.querySelectorAll('.panel-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            setTimeout(spyScroll, 350);
+        });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

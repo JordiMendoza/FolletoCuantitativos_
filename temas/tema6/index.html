@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 6: Control estadistico - Métodos Cuantitativos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS DE DISEÑO ORIGINALES (Paleta Neutra y Confortable) --- */
+        :root {
+            --bg-color: #fcfbfa;       /* Blanco hueso/arena suave para evitar fatiga visual */
+            --text-main: #2b2a28;      /* Antracita / Grafito oscuro para lectura limpia */
+            --text-muted: #646360;     /* Gris tierra suave para descripciones secundarias */
+            --card-bg: #ffffff;        /* Blanco puro para las secciones modulares */
+            --sidebar-bg: #f3f1ec;     /* Fondo gris/crema plano y minimalista */
+            --sidebar-hover: #e8e5de;  /* Resaltado suave en hover */
+            --accent-line: #dfdbd3;    /* Separadores y bordes sutiles */
+            --accent-dot: #4e5c50;     /* Punto decorativo verde musgo desaturado */
+            --transition-speed: 0.3s;
+            
+            --font-serif: 'Lora', Georgia, serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDE NAV COMPACTO E INTERACTIVO --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 75px; /* Ancho colapsado inicial */
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--accent-line);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 14px;
+            transition: width var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sticky-link.active-scroll {
+    color: var(--accent-dot) !important;
+    font-weight: 600 !important;
+}
+
+        /* Expansión del Side Nav mediante JS (mouseenter) */
+        .sidebar.expanded {
+            width: 260px;
+            box-shadow: 15px 0 40px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Botón superior de Inicio / Regresar */
+        .btn-home {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 12px;
+            border: 1px solid var(--accent-line);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            transition: background var(--transition-speed);
+            margin-bottom: 35px;
+        }
+
+        .btn-home:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+ .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 8px 5px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: background var(--transition-speed), padding-left 0.2s;
+            white-space: normal;  /* Permite que el texto salte de línea si es largo */
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            padding-left: 18px;
+        }
+
+        /* Ocultar/Mostrar texto del Side Nav lateral de forma fluida */
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-left: 18px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Indicador numérico minimalista */
+        .icon-num {
+            display: inline-block;
+            width: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- MAQUETACIÓN MODULAR (CARDS) --- */
+        .main-container {
+            margin-left: 75px; /* Sincronizado con el estado colapsado */
+            padding: 80px 6% 80px 6%;
+            width: 100%;
+            max-width: 1300px;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Separación limpia entre los bloques modulares */
+        }
+
+        .sidebar.expanded ~ .main-container {
+            margin-left: 260px;
+        }
+
+        /* Encabezado Principal de la Landing Page */
+        .header-section {
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            font-family: var(--font-serif);
+            font-size: 3.8rem;
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Tarjeta de Contenido / Estructura por Módulos */
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-line);
+            border-radius: 16px;
+            padding: 40px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);
+        }
+
+        .intro-p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+      
+        .section-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--accent-line);
+            padding-bottom: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .main-title { font-size: 2.8rem; }
+            .content-card { padding: 30px 25px; }
+            .main-container { padding: 40px 20px; margin-left: 75px; }
+            .layout-columns { flex-direction: column; }
+            .sticky-column { display: none; } /* Oculta el card lateral en pantallas pequeñas */
+        }
+
+        .collapsible-panel {
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+    margin-top: 20px;
+}
+
+.panel-trigger {
+    width: 100%;
+    border: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.panel-trigger:hover {
+    background: var(--sidebar-hover);
+}
+
+.panel-content {
+    padding: 20px;
+    display: block; 
+}
+
+
+.collapsible-panel.collapsed .panel-content {
+    display: none;
+}
+
+.panel-icon {
+    transition: transform .25s ease;
+}
+
+
+.collapsible-panel.collapsed .panel-icon {
+    transform: rotate(180deg);
+}
+
+    </style>
+</head>
+<body>
+
+   <nav class="sidebar" id="sideNav">
+    <a href="../../index.html" class="btn-home">
+        <span class="icon-num">←</span>
+        <span class="nav-text">Regresar al inicio</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li>
+            <a href="../tema1/index.html" class="nav-item">
+                <span class="icon-num">01</span>
+                <span class="nav-text">Tema 1: Modelos de Transporte</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema2/index.html" class="nav-item">
+                <span class="icon-num">02</span>
+                <span class="nav-text">Tema 2: Programación Entera, por metas, no lineal</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema3/index.html" class="nav-item">
+                <span class="icon-num">03</span>
+                <span class="nav-text">Tema 3: Modelos de redes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema4/index.html" class="nav-item">
+                <span class="icon-num">04</span>
+                <span class="nav-text">Tema 4: Modelado de Simulación</span>
+            </a>
+        </li>
+        <li>
+            <a href="../tema5/index.html" class="nav-item">
+                <span class="icon-num">05</span>
+                <span class="nav-text">Tema 5: Análisis de Markov</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-item" style="background-color: var(--sidebar-hover); font-weight: 500;">
+                <span class="icon-num">06</span>
+                <span class="nav-text">Tema 6: Control estadistico</span>
+            </a>
+        </li>
+         <li>
+                <a href="../tema7/index.html" class="nav-item">
+                    <span class="icon-num">07</span>
+                    <span class="nav-text">Tema 7: aprende conceptos jugando</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+    <main class="main-container">
+        
+        <header class="header-section">
+            <h1 class="main-title">Tema 6: Control estadistico</h1>
+            <p class="intro-p" style="color: var(--text-muted); margin-top: 5px; font-size: 1.2rem;">
+              se usa para monitorear y controlar la variabilidad de un proceso mediante herramientas estadísticas
+            </p>
+        </header>
+        
+        <div class="layout-columns" style="display: flex; gap: 40px; align-items: flex-start; width: 100%;">
+            
+            <div class="content-column" style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                
+                <section id="teoria" class="content-card">
+                    <h2 class="section-subtitle">Teoría</h2>
+                  
+
+                    <section class="content-card" style="margin-bottom: 30px;">
+    <h2 class="section-subtitle">Gestión de Operaciones: Control Estadístico de la Calidad</h2>
+    
+    <p class="intro-p" style="line-height: 1.7;">
+        El Control Estadístico de la Calidad (CEQ) es una metodología estratégica que permite evaluar y diagnosticar el comportamiento de un proceso mediante el análisis de datos cuantitativos. Su propósito fundamental radica en supervisar la estabilidad operativa de los sistemas, distinguiendo entre variaciones comunes y anomalías críticas antes de que afecten el resultado final.
+    </p>
+
+    <div style="margin: 30px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+        <div style="background: var(--sidebar-bg); padding: 20px 15px; border-radius: 8px; border-top: 4px solid var(--accent-dot); text-align: center;">
+            <div style="font-weight: 600; margin-bottom: 6px; color: var(--text-main);">1. Análisis de Datos</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Estudio y monitoreo constante de la estabilidad del proceso.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 20px 15px; border-radius: 8px; border-top: 4px solid var(--accent-dot); text-align: center;">
+            <div style="font-weight: 600; margin-bottom: 6px; color: var(--text-main);">2. Detección Temprana</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Identificación oportuna de desviaciones y variaciones anormales.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 20px 15px; border-radius: 8px; border-top: 4px solid var(--accent-dot); text-align: center;">
+            <div style="font-weight: 600; margin-bottom: 6px; color: var(--text-main);">3. Optimización Activa</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Reducción sistemática de errores, mermas y desperdicios.</div>
+        </div>
+        <div style="background: var(--sidebar-bg); padding: 20px 15px; border-radius: 8px; border-top: 4px solid var(--accent-dot); text-align: center;">
+            <div style="font-weight: 600; margin-bottom: 6px; color: var(--text-main);">4. Decisión Basada en Evidencia</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Soporte empírico para la mejora continua del producto o servicio.</div>
+        </div>
+    </div>
+
+    <p style="font-size: 0.95rem; color: var(--text-main); line-height: 1.6;">
+        Al implementar este enfoque matemático, las organizaciones logran transformar la recopilación rutinaria de datos en un mecanismo de prevención proactivo, asegurando que la calidad deje de ser una meta aleatoria y se convierta en un estándar predecible y controlado.
+    </p>
+</section>
+
+
+
+                </section>
+
+                <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <section id="video" class="content-card">
+                    <h2 class="section-subtitle">Resolución de ejercicios</h2>
+                    <p class="intro-p">Espacio reservado para redireccionador hacía ejercicios realizados en canva, presione la imagen de abajo para que lo redireccione al paso a paso de la resolución del ejercicicio</p>
+                      
+                               
+<a href="https://canva.link/rn5cu6dsjbkppiu" target="_blank" class="canva-banner-link">
+    <img src="https://i.pinimg.com/736x/75/12/ca/7512cad9499685ef06b2e0d8f6820960.jpg" alt="Resolución de Ejercicios en Canva">
+</a>
+                    <div style="height: 400px;"></div> </section>
+
+                </section>
+
+                <section id="practica" class="content-card">
+                    <h2 class="section-subtitle">Parte Teórica / Interactiva</h2>
+                  
+                  <p class="intro-p">Espacio reservado para mostrar como utilizar las diferentes formulas. Este tema por su extensa cantidad de fórmulas
+                    Es complicado implementar una despliegue intereactivo por las posibles variables del tema por lo cual se opto por mostrar como utilizar 
+                    las formulas brindadas.
+                  </p>
+                    <div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de la Media (<span style="font-family: var(--font-sans);">x̄</span>)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Calcula el promedio de los valores medidos dentro de un subgrupo específico para identificar la tendencia central del proceso.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                x̄ = ( ∑ xᵢ ) / n
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Valores del subgrupo:</span>
+                    <input type="number" value="12" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="15" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="11" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="14" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Tamaño muestral (n):</span>
+                    <input type="number" value="4" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">∑ xᵢ = 12 + 15 + 11 + 14 = 52</div>
+                <div class="dev-line">x̄ = 52 / 4</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: x̄ = 13.00</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del Rango (R)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Mide la variabilidad o dispersión local dentro de un subgrupo, restando el valor mínimo registrado del valor máximo.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                R = x_max - x_min
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Valor máximo (x_max):</span>
+                    <input type="number" value="18.5" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Valor mínimo (x_min):</span>
+                    <input type="number" value="14.2" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">R = 18.5 - 14.2</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: R = 4.30</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de la Gran Media (x̄̄)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Calcula el promedio general de todas las medias de los subgrupos. Representa la línea central (LC) en la gráfica de control x̄.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                x̄̄ = ( ∑ x̄ᵢ ) / n
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Medias obtenidas (x̄ᵢ):</span>
+                    <input type="number" value="13.2" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="12.8" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="13.5" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Total de subgrupos (n):</span>
+                    <input type="number" value="3" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">∑ x̄ᵢ = 13.2 + 12.8 + 13.5 = 39.5</div>
+                <div class="dev-line">x̄̄ = 39.5 / 3</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: x̄̄ = 13.17</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del Rango Promedio (R̄)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Establece la media de los rangos de todos los subgrupos medidos. Define la línea central (LC) en la gráfica de control R.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                R̄ = ( ∑ Rᵢ ) / n
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Rangos obtenidos (Rᵢ):</span>
+                    <input type="number" value="2.1" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="1.8" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="2.5" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                    <input type="number" value="2.0" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Total de subgrupos (n):</span>
+                    <input type="number" value="4" style="width: 65px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">∑ Rᵢ = 2.1 + 1.8 + 2.5 + 2.0 = 8.4</div>
+                <div class="dev-line">R̄ = 8.4 / 4</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: R̄ = 2.10</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCS de la Gráfica x̄?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Determina el Límite Superior de Control estadístico para las medias. Si una muestra supera este valor, el proceso se declara inestable.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCS_x̄ = x̄̄ + (A₂ · R̄)
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Gran Media (x̄̄):</span>
+                    <input type="number" value="25.4" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Constante A₂:</span>
+                    <input type="number" value="0.577" step="0.001" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Rango Medio (R̄):</span>
+                    <input type="number" value="3.15" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LCS_x̄ = 25.4 + (0.577 · 3.15)</div>
+                <div class="dev-line">LCS_x̄ = 25.4 + 1.8176</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCS_x̄ = 27.22</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LC de la Gráfica x̄?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Establece la Línea Central de referencia en el gráfico de medias, vinculándose directamente con el valor de la gran media.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LC_x̄ = x̄̄
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Gran Media (x̄̄):</span>
+                <input type="number" value="42.18" style="width: 90px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LC_x̄ = 42.18</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LC_x̄ = 42.18</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCI de la Gráfica x̄?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Fija el Límite Inferior de Control estadístico para la tendencia central. Caer por debajo de este valor denota desajustes operativos del sistema.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCI_x̄ = x̄̄ - (A₂ · R̄)
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Gran Media (x̄̄):</span>
+                    <input type="number" value="25.4" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Constante A₂:</span>
+                    <input type="number" value="0.577" step="0.001" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 120px;">Rango Medio (R̄):</span>
+                    <input type="number" value="3.15" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LCI_x̄ = 25.4 - (0.577 · 3.15)</div>
+                <div class="dev-line">LCI_x̄ = 25.4 - 1.8176</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCI_x̄ = 23.58</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCS de la Gráfica R?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Calcula la cota superior de variabilidad permitida en el proceso. Exceder este umbral implica picos inaceptables de dispersión.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCS_R = D₄ · R̄
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Constante D₄:</span>
+                    <input type="number" value="2.114" step="0.001" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Rango Medio (R̄):</span>
+                    <input type="number" value="1.65" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LCS_R = 2.114 · 1.65</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCS_R = 3.49</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LC de la Gráfica R?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Representa la Línea Central de control para la dispersión o rango, siendo equivalente al valor promedio de rangos calculado.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LC_R = R̄
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Rango Medio (R̄):</span>
+                <input type="number" value="1.92" style="width: 90px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LC_R = 1.92</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LC_R = 1.92</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCI de la Gráfica R?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Define la cota mínima del rango del proceso. Para muestras pequeñas suele ser cero, indicando uniformidad ideal en el sistema.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCI_R = D₃ · R̄
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Constante D₃:</span>
+                    <input type="number" value="0.000" step="0.001" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Rango Medio (R̄):</span>
+                    <input type="number" value="2.38" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LCI_R = 0.000 · 2.38</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCI_R = 0.00</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de la Desviación Estándar (σ)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Estima la dispersión global inherente del proceso a partir de los datos de rango muestral corregidos por factores de escala.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                σ = R̄ / d₂
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Rango Medio (R̄):</span>
+                    <input type="number" value="4.26" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Constante d₂:</span>
+                    <input type="number" value="2.059" step="0.001" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">σ = 4.26 / 2.059</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: σ = 2.07</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del Índice de Capacidad (Cp)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Evalúa si el ancho del proceso es adecuado para cumplir con las tolerancias comerciales preestablecidas. Valores ≥ 1.33 denotan optimización.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                C_p = (LSE - LIE) / (6 · σ)
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Lím. Esp. Sup (LSE):</span>
+                    <input type="number" value="50.0" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Lím. Esp. Inf (LIE):</span>
+                    <input type="number" value="40.0" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Desv. Estándar (σ):</span>
+                    <input type="number" value="1.20" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">C_p = (50.0 - 40.0) / (6 · 1.20)</div>
+                <div class="dev-line">C_p = 10.0 / 7.20</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: C_p = 1.39 (Proceso Capaz)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de Capacidad Centrado (Cpk)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Determina la capacidad real del proceso considerando el centrado respecto a los límites de especificación. Utiliza el mínimo de ambos lados.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.05rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                C_pk = min( (LSE - x̄̄)/(3σ), (x̄̄ - LIE)/(3σ) )
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Lím. Esp. Sup (LSE):</span>
+                    <input type="number" value="35.0" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Lím. Esp. Inf (LIE):</span>
+                    <input type="number" value="25.0" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Gran Media (x̄̄):</span>
+                    <input type="number" value="28.5" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Desv. Estándar (σ):</span>
+                    <input type="number" value="1.50" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">Lado Superior: (35.0 - 28.5) / (3 · 1.50) = 6.5 / 4.5 = 1.44</div>
+                <div class="dev-line">Lado Inferior: (28.5 - 25.0) / (3 · 1.50) = 3.5 / 4.5 = 0.78</div>
+                <div class="dev-line">C_pk = min(1.44, 0.78)</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: C_pk = 0.78 (Proceso descentrado)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de la Proporción (p)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Calcula el porcentaje fraccionario de unidades no conformes detectadas en una muestra en relación al volumen de inspección de ese lote.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                p = d / n
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Unidades defectuosas (d):</span>
+                    <input type="number" value="6" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Tamaño lote (n):</span>
+                    <input type="number" value="120" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">p = 6 / 120</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: p = 0.050 (5.0%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula de Proporción Promedio (p̄)?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Consolida los defectos históricos dividiendo el total agregado de no conformidades detectadas entre toda la base global de inspección.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                p̄ = ( ∑ dᵢ ) / ( ∑ nᵢ )
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Suma de Defectos (∑ dᵢ):</span>
+                    <input type="number" value="24" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 130px;">Total Inspección (∑ nᵢ):</span>
+                    <input type="number" value="600" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">p̄ = 24 / 600</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: p̄ = 0.040 (4.0%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCS de la Gráfica p?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Calcula el Límite Superior de Control para variables de atributos (proporción). Si un lote supera este límite, la tasa de fallo es anormal.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.05rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCS_p = p̄ + 3 · √[ (p̄ · (1 - p̄)) / n ]
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Proporción Prom. (p̄):</span>
+                    <input type="number" value="0.04" step="0.01" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Muestra del Turno (n):</span>
+                    <input type="number" value="150" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">Error Estándar = √[ (0.04 · 0.96) / 150 ] = √[ 0.0384 / 150 ] = 0.016</div>
+                <div class="dev-line">LCS_p = 0.04 + (3 · 0.016)</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCS_p = 0.088 (8.8%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LC de la Gráfica p?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Establece la Línea Central de referencia dentro de las gráficas de control por atributos, equivaliendo a la tasa de fallo promedio.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LC_p = p̄
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Proporción Prom. (p̄):</span>
+                <input type="number" value="0.055" step="0.001" style="width: 90px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">LC_p = 0.055</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LC_p = 0.055 (5.5%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="collapsible-panel collapsed" style="margin-bottom: 15px;">
+    <button class="panel-trigger">
+        <span class="panel-title" style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500;">
+            ¿Cómo se utiliza la fórmula del LCI de la Gráfica p?
+        </span>
+        <span class="panel-icon">▲</span>
+    </button>
+    <div class="panel-content">
+        <p class="intro-p" style="margin-bottom: 20px; font-size: 1rem;">
+            Fija la tolerancia mínima de defectos admitidos. Si la tasa calculada cae de este límite, indica un cambio inusual en la calidad que debe evaluarse.
+        </p>
+        <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-dot); margin-bottom: 20px;">
+            <div style="font-family: monospace; font-size: 1.05rem; margin-bottom: 15px; text-align: center; color: var(--text-main);">
+                LCI_p = p̄ - 3 · √[ (p̄ · (1 - p̄)) / n ]
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Proporción Prom. (p̄):</span>
+                    <input type="number" value="0.06" step="0.01" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); min-width: 140px;">Muestra del Turno (n):</span>
+                    <input type="number" value="200" style="width: 80px; padding: 4px 8px; border: 1px solid var(--accent-line); border-radius: 4px; text-align: center;">
+                </div>
+            </div>
+        </div>
+        <div class="development-box">
+            <div class="dev-step">
+                <h4>Sustitución en el sistema:</h4>
+                <div class="dev-line">Error Estándar = √[ (0.06 · 0.94) / 200 ] = √[ 0.0564 / 200 ] = 0.0168</div>
+                <div class="dev-line">LCI_p = 0.06 - (3 · 0.0168) = 0.06 - 0.0504</div>
+                <div class="dev-line" style="font-weight: bold; color: var(--accent-dot);">Resultado: LCI_p = 0.0096 (0.96%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+                </section>
+
+                <section id="conclusion" class="content-card">
+                    <h2 class="section-subtitle">Conclusión</h2>
+                    <h2 class="section-subtitle">conclusiones del tema</h2>
+<p class="intro-p" style="font-style: italic; color: var(--text-muted); text-align: justify;">
+    Como conclusión, este tema permite evaluar casos específicos para verificar que los procesos estén debidamente estructurados. Queda claro que, si se detectan pocas muestras fuera de control, se debe replantear la cantidad de los muestreos; por el contrario, si la cantidad de muestras descontroladas excede cierto límite, lo óptimo es optar por afinar el proceso de raíz, ya que es bastante mejorable. A nivel personal, considero que esta temática es de las más pesadas teóricamente hablando. La práctica y su respectiva retroalimentación son apenas el principio, evidenciando que hace falta mucha más práctica para terminar de desarrollar las habilidades requeridas.
+</p>
+                </section>
+                
+            </div>
+
+<aside class="sticky-column" style="width: 280px; position: sticky; top: 40px;">
+    <div style="background-color: var(--card-bg); border: 1px solid var(--accent-line); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.005);">
+        <h3 style="font-family: var(--font-sans); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 20px; border-bottom: 1px solid var(--accent-line); padding-bottom: 8px;">
+            Contenido del Tema
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <a href="#teoria" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Teoría</a>
+            <a href="#video" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Resolución de ejercicios en canva</a>
+            <a href="#practica" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Parte Teórica/Interactiva</a>
+            <a href="#conclusion" class="sticky-link" style="text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 400; transition: color 0.2s;">Conclusión</a>
+        </div>
+    </div>
+</aside>
+
+        </div>
+
+    </main>
+
+    <script>
+  const sideNav = document.getElementById('sideNav');
+    sideNav.addEventListener('mouseenter', () => { sideNav.classList.add('expanded'); });
+    sideNav.addEventListener('mouseleave', () => { sideNav.classList.remove('expanded'); });
+
+   
+    document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".sticky-link");
+        const sections = document.querySelectorAll(".content-card");
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "-15% 0px -70% 0px", 
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute("id");
+                    
+                    links.forEach((link) => link.classList.remove("active-scroll"));
+                    
+                    const activeLink = document.querySelector(`.sticky-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add("active-scroll");
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+    });
+
+  
+document.querySelectorAll(".panel-trigger").forEach(trigger => {
+    trigger.addEventListener("click", function() {
+  
+        const panel = this.closest(".collapsible-panel");
+        panel.classList.toggle("collapsed");
+    });
+});
+
+    </script>
+</body>
+</html>
