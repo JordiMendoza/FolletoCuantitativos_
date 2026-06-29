@@ -529,6 +529,21 @@
             <p style="font-size: 0.85rem; color: var(--text-muted);">El punto de equilibrio donde el sistema se estabiliza a largo plazo.</p>
         </div>
     </div>
+     
+    <div style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; font-size: 0.8rem;">
+    <strong style="color: #3498db; display: block; margin-bottom: 2px;">¿Cómo funciona?</strong>
+    Opera bajo la <strong>Propiedad de Markov</strong>: el sistema carece de memoria histórica. La probabilidad de moverse a un estado futuro se calcula basándose únicamente en la situación del presente, ignorando el pasado.
+</div>
+
+<div style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; font-size: 0.8rem;">
+    <strong style="color: #e67e22; display: block; margin-bottom: 2px;">¿Cómo funciona?</strong>
+    Cruza los estados actuales (filas) con los futuros (columnas). Su regla matemática estricta obliga a que <strong>la suma de cada fila sea exactamente 1 (100%)</strong>, asegurando que se contemplen todas las opciones de cambio posibles.
+</div>
+
+<div style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; font-size: 0.8rem;">
+    <strong style="color: #27ae60; display: block; margin-bottom: 2px;">¿Cómo funciona?</strong>
+    Se proyecta multiplicando la matriz por sí misma de forma iterativa hacia el futuro. Al llegar al equilibrio, las transiciones individuales continúan, pero <strong>las cuotas globales del sistema se congelan</strong> y permanecen constantes.
+</div>
 </section>
                 </section>
 

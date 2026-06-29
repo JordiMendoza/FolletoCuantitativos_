@@ -641,7 +641,7 @@ circle {
 
     
     <h3 style="margin-top: 20px;">Árbol de Expansión Mínima</h3>
-    <p>Este método sirve para conectar todos los puntos de una red (nodos) de la manera más barata posible, sin crear ciclos. Es como tirar tuberías entre varias casas usando el mínimo material.</p>
+    <p>Este método sirve para conectar todos los puntos de una red (nodos) de la manera más barata posible, sin crear ciclos. Es como tirar tuberías entre varias casas usando el mínimo material. Para lograrlo, el modelo analiza los pesos o costos de cada enlance (distancias, tiempos, precios) y selecciona la combinación óptima. Los compañeros en este caso utilizaron el algoritmo de Kruskal</p>
     <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin: 20px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
         <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">A</div>
         <div style="height: 4px; width: 40px; background: #27ae60;"></div>
@@ -652,7 +652,7 @@ circle {
 
    
     <h3 style="margin-top: 20px;">Flujo Máximo</h3>
-    <p>Se usa para saber cuánto producto o datos pueden pasar por una red desde el inicio hasta el fin. Es clave para identificar cuellos de botella y saber el límite real del sistema.</p>
+    <p>Se usa para saber cuánto producto o datos pueden pasar por una red desde el inicio hasta el fin. Es clave para identificar cuellos de botella y saber el límite real del sistema. Requiere definir un nodo de origen (fuente) y uno de destino (sumidero), donde cada enlace tiene una capacidad límite que no se puede exceder. Matemáticamente, los compañeros lo resolvieron utilizando el algoritmo de Ford-Fulkerson.</p>
     <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
       <div style="width: 30px; height: 30px; border-radius: 50%; background: #3498db; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">I</div>
         <div style="height: 15px; width: 120px; background: #eee; border-radius: 10px; overflow: hidden; border: 1px solid #ccc;">
@@ -663,7 +663,7 @@ circle {
 
    
     <h3 style="margin-top: 20px;">Ruta Más Corta</h3>
-    <p>El objetivo es encontrar el camino con el menor costo o distancia entre dos puntos. Es la lógica detrás de aplicaciones como Waze para llegar lo más rápido posible.</p>
+    <p>El objetivo es encontrar el camino con el menor costo o distancia entre dos puntos. Es la lógica detrás de aplicaciones como Waze para llegar lo más rápido posible. A diferencia del árbol de expansión, no busca conectar toda la red, sino optimizar la trayectoria lineal única entre dos nodos específicos. Los compañeros utilizaron el Algoritmo de Dijkstra para resolver el ejemplo en clase.</p>
     <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; background: var(--sidebar-bg); padding: 20px; border-radius: 8px;">
         <div style="padding: 10px; border: 2px dashed #c0392b; color: #c0392b; font-weight: bold; border-radius: 5px;">Ruta Óptima (A ➔ D)</div>
     </div>
